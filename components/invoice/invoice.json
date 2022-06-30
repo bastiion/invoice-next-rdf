@@ -1,0 +1,577 @@
+{
+  "definitions": {
+    "Invoice": {
+      "type": "object",
+      "properties": {
+        "buyer": {
+          "$ref": "#/definitions/Buyer",
+          "title": "Invoice.buyer"
+        },
+        "currency": {
+          "type": "string",
+          "title": "Invoice.currency"
+        },
+        "subject": {
+          "type": "string",
+          "title": "Invoice.subject"
+        },
+        "description": {
+          "type": "string",
+          "title": "Invoice.description"
+        },
+        "greeting": {
+          "type": "string",
+          "title": "Invoice.greeting"
+        },
+        "invoiceRef": {
+          "type": "string",
+          "title": "Invoice.invoiceRef"
+        },
+        "place": {
+          "type": "string",
+          "title": "Invoice.place"
+        },
+        "seller": {
+          "$ref": "#/definitions/Seller",
+          "title": "Invoice.seller"
+        },
+        "tradeItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TradeItem",
+            "title": "Invoice.tradeItems.[]"
+          },
+          "title": "Invoice.tradeItems"
+        },
+        "discounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Discount",
+            "title": "Invoice.discounts.[]"
+          },
+          "title": "Invoice.discounts"
+        },
+        "sconto": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Sconto",
+            "title": "Invoice.sconto.[]"
+          },
+          "title": "Invoice.sconto"
+        }
+      },
+      "required": [
+        "buyer",
+        "currency",
+        "description",
+        "greeting",
+        "invoiceRef",
+        "place",
+        "seller",
+        "tradeItems"
+      ],
+      "additionalProperties": false,
+      "title": "Invoice"
+    },
+    "Buyer": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "title": "Buyer.address"
+        },
+        "name": {
+          "type": "string",
+          "title": "Buyer.name"
+        }
+      },
+      "required": [
+        "address",
+        "name"
+      ],
+      "additionalProperties": false,
+      "title": "Buyer"
+    },
+    "TaxInfo": {
+      "type": "object",
+      "properties": {
+        "ustid": {
+          "type": "string",
+          "title": "TaxInfo.ustid"
+        }
+      },
+      "required": [
+        "ustid"
+      ],
+      "additionalProperties": false,
+      "title": "TaxInfo"
+    },
+    "Seller": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "title": "Seller.address"
+        },
+        "bank": {
+          "$ref": "#/definitions/Bank",
+          "title": "Seller.bank"
+        },
+        "email": {
+          "type": "string",
+          "title": "Seller.email"
+        },
+        "name": {
+          "type": "string",
+          "title": "Seller.name"
+        },
+        "taxInfo": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TaxInfo",
+              "title": "Seller.taxInfo"
+            }
+          ],
+          "title": "Seller.taxInfo"
+        }
+      },
+      "required": [
+        "address",
+        "bank",
+        "email",
+        "name",
+        "taxInfo"
+      ],
+      "additionalProperties": false,
+      "title": "Seller"
+    },
+    "Bank": {
+      "type": "object",
+      "properties": {
+        "bic": {
+          "type": "string",
+          "title": "Bank.bic"
+        },
+        "iban": {
+          "type": "string",
+          "title": "Bank.iban"
+        },
+        "name": {
+          "type": "string",
+          "title": "Bank.name"
+        }
+      },
+      "required": [
+        "bic",
+        "iban",
+        "name"
+      ],
+      "additionalProperties": false,
+      "title": "Bank"
+    },
+    "TaxIdentifier": {
+      "type": "string",
+      "const": "vat",
+      "title": "TaxIdentifier"
+    },
+    "Tax": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/TaxIdentifier",
+          "title": "Tax.id"
+        },
+        "abbreviation": {
+          "type": "string",
+          "title": "Tax.abbreviation"
+        },
+        "name": {
+          "type": "string",
+          "title": "Tax.name"
+        },
+        "rate": {
+          "type": "number",
+          "title": "Tax.rate"
+        }
+      },
+      "required": [
+        "id",
+        "abbreviation",
+        "name",
+        "rate"
+      ],
+      "additionalProperties": false,
+      "title": "Tax"
+    },
+    "CalculatedTax": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/TaxIdentifier",
+          "title": "CalculatedTax.id"
+        },
+        "abbreviation": {
+          "type": "string",
+          "title": "CalculatedTax.abbreviation"
+        },
+        "name": {
+          "type": "string",
+          "title": "CalculatedTax.name"
+        },
+        "rate": {
+          "type": "string",
+          "title": "CalculatedTax.rate"
+        },
+        "total": {
+          "type": "string",
+          "title": "CalculatedTax.total"
+        },
+        "totalNumber": {
+          "type": "number",
+          "title": "CalculatedTax.totalNumber"
+        }
+      },
+      "required": [
+        "id",
+        "abbreviation",
+        "name",
+        "rate",
+        "total",
+        "totalNumber"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedTax"
+    },
+    "TradeItem": {
+      "type": "object",
+      "properties": {
+        "optional": {
+          "type": "boolean",
+          "title": "TradeItem.optional"
+        },
+        "amount": {
+          "type": "number",
+          "title": "TradeItem.amount"
+        },
+        "title": {
+          "type": "string",
+          "title": "TradeItem.title"
+        },
+        "description": {
+          "type": "string",
+          "title": "TradeItem.description"
+        },
+        "netPricePerItem": {
+          "type": "number",
+          "title": "TradeItem.netPricePerItem"
+        },
+        "unit": {
+          "type": "string",
+          "title": "TradeItem.unit"
+        },
+        "taxes": {
+          "$ref": "#/definitions/TradeItem_taxes",
+          "title": "TradeItem.taxes"
+        }
+      },
+      "required": [
+        "amount",
+        "description",
+        "netPricePerItem",
+        "unit",
+        "taxes"
+      ],
+      "additionalProperties": false,
+      "title": "TradeItem"
+    },
+    "Discount": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Discount.title"
+        },
+        "description": {
+          "type": "string",
+          "title": "Discount.description"
+        },
+        "rate": {
+          "type": "number",
+          "title": "Discount.rate"
+        }
+      },
+      "required": [
+        "description",
+        "rate"
+      ],
+      "additionalProperties": false,
+      "title": "Discount"
+    },
+    "Sconto": {
+      "type": "object",
+      "properties": {
+        "days": {
+          "type": "number",
+          "title": "Sconto.days"
+        },
+        "rate": {
+          "type": "number",
+          "title": "Sconto.rate"
+        }
+      },
+      "required": [
+        "days",
+        "rate"
+      ],
+      "additionalProperties": false,
+      "title": "Sconto"
+    },
+    "CalculatedDiscount": {
+      "type": "object",
+      "properties": {
+        "taxPriceNumber": {
+          "type": "number",
+          "title": "CalculatedDiscount.taxPriceNumber"
+        },
+        "taxPrice": {
+          "type": "string",
+          "title": "CalculatedDiscount.taxPrice"
+        },
+        "netPrice": {
+          "type": "string",
+          "title": "CalculatedDiscount.netPrice"
+        },
+        "netPriceNumber": {
+          "type": "number",
+          "title": "CalculatedDiscount.netPriceNumber"
+        }
+      },
+      "required": [
+        "taxPriceNumber",
+        "taxPrice",
+        "netPrice",
+        "netPriceNumber"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedDiscount"
+    },
+    "CalculatedSconto": {
+      "type": "object",
+      "properties": {
+        "price": {
+          "type": "string",
+          "title": "CalculatedSconto.price"
+        },
+        "priceNumber": {
+          "type": "number",
+          "title": "CalculatedSconto.priceNumber"
+        }
+      },
+      "required": [
+        "price",
+        "priceNumber"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedSconto"
+    },
+    "CalculatedTradeItem": {
+      "type": "object",
+      "properties": {
+        "optional": {
+          "type": "boolean",
+          "title": "CalculatedTradeItem.optional"
+        },
+        "amount": {
+          "type": "string",
+          "title": "CalculatedTradeItem.amount"
+        },
+        "title": {
+          "type": "string",
+          "title": "CalculatedTradeItem.title"
+        },
+        "description": {
+          "type": "string",
+          "title": "CalculatedTradeItem.description"
+        },
+        "grossPrice": {
+          "type": "string",
+          "title": "CalculatedTradeItem.grossPrice"
+        },
+        "netPrice": {
+          "type": "string",
+          "title": "CalculatedTradeItem.netPrice"
+        },
+        "netPriceNumber": {
+          "type": "number",
+          "title": "CalculatedTradeItem.netPriceNumber"
+        },
+        "netPricePerItem": {
+          "type": "string",
+          "title": "CalculatedTradeItem.netPricePerItem"
+        },
+        "taxes": {
+          "$ref": "#/definitions/CalculatedTradeItem_taxes",
+          "title": "CalculatedTradeItem.taxes"
+        },
+        "unit": {
+          "type": "string",
+          "title": "CalculatedTradeItem.unit"
+        }
+      },
+      "required": [
+        "amount",
+        "description",
+        "grossPrice",
+        "netPrice",
+        "netPriceNumber",
+        "netPricePerItem",
+        "taxes",
+        "unit"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedTradeItem"
+    },
+    "CalculatedInvoice": {
+      "type": "object",
+      "properties": {
+        "buyer": {
+          "$ref": "#/definitions/Buyer",
+          "title": "CalculatedInvoice.buyer"
+        },
+        "currency": {
+          "type": "string",
+          "title": "CalculatedInvoice.currency"
+        },
+        "subject": {
+          "type": "string",
+          "title": "CalculatedInvoice.subject"
+        },
+        "description": {
+          "type": "string",
+          "title": "CalculatedInvoice.description"
+        },
+        "greeting": {
+          "type": "string",
+          "title": "CalculatedInvoice.greeting"
+        },
+        "invoiceRef": {
+          "type": "string",
+          "title": "CalculatedInvoice.invoiceRef"
+        },
+        "place": {
+          "type": "string",
+          "title": "CalculatedInvoice.place"
+        },
+        "seller": {
+          "$ref": "#/definitions/Seller",
+          "title": "CalculatedInvoice.seller"
+        },
+        "taxes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CalculatedTax",
+            "title": "CalculatedInvoice.taxes.[]"
+          },
+          "title": "CalculatedInvoice.taxes"
+        },
+        "total": {
+          "$ref": "#/definitions/CalculatedTotal",
+          "title": "CalculatedInvoice.total"
+        },
+        "totalOfOptionals": {
+          "$ref": "#/definitions/CalculatedTotal",
+          "title": "CalculatedInvoice.totalOfOptionals"
+        },
+        "tradeItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CalculatedTradeItem",
+            "title": "CalculatedInvoice.tradeItems.[]"
+          },
+          "title": "CalculatedInvoice.tradeItems"
+        },
+        "discounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CalculatedDiscount",
+            "title": "CalculatedInvoice.discounts.[]"
+          },
+          "title": "CalculatedInvoice.discounts"
+        },
+        "sconto": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CalculatedSconto",
+            "title": "CalculatedInvoice.sconto.[]"
+          },
+          "title": "CalculatedInvoice.sconto"
+        }
+      },
+      "required": [
+        "buyer",
+        "currency",
+        "description",
+        "greeting",
+        "invoiceRef",
+        "place",
+        "seller",
+        "taxes",
+        "total",
+        "tradeItems"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedInvoice"
+    },
+    "TradeItem_taxes": {
+      "type": "object",
+      "properties": {
+        "vat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Tax",
+              "title": "TradeItem_taxes.vat"
+            }
+          ],
+          "title": "TradeItem_taxes.vat"
+        }
+      },
+      "required": [
+        "vat"
+      ],
+      "additionalProperties": false,
+      "title": "TradeItem_taxes"
+    },
+    "CalculatedTradeItem_taxes": {
+      "type": "object",
+      "properties": {
+        "vat": {
+          "$ref": "#/definitions/CalculatedTax",
+          "title": "CalculatedTradeItem_taxes.vat"
+        }
+      },
+      "additionalProperties": false,
+      "title": "CalculatedTradeItem_taxes"
+    },
+    "CalculatedTotal": {
+      "type": "object",
+      "properties": {
+        "grossGrandTotal": {
+          "type": "string",
+          "title": "CalculatedTotal.grossGrandTotal"
+        },
+        "netGrandTotal": {
+          "type": "string",
+          "title": "CalculatedTotal.netGrandTotal"
+        }
+      },
+      "required": [
+        "grossGrandTotal",
+        "netGrandTotal"
+      ],
+      "additionalProperties": false,
+      "title": "CalculatedTotal"
+    }
+  },
+  "$id": "invoice.json",
+  "$comment": "Generated from src/types/invoice.ts by core-types-json-schema (https://github.com/grantila/core-types-json-schema) on behalf of typeconv (https://github.com/grantila/typeconv)"
+}

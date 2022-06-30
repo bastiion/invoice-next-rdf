@@ -1,0 +1,47 @@
+query invoices {
+    invoices {
+        invoiceRef
+        subject
+        description
+        place
+        greeting
+        buyer {
+            name
+            address
+        }
+        seller {
+            name
+            bank {
+                name
+                iban
+                bic
+            }
+            address
+            email
+        }
+        discounts {
+            description
+            title
+            rate
+        }
+        sconto {
+            days
+            rate
+        }
+        tradeItems {
+            title
+            description
+            unit
+            amount
+            optional
+            netPricePerItem
+            taxes {
+                vat {
+                    rate
+                    abbreviation
+                    name
+                }
+            }
+        }
+    }
+}

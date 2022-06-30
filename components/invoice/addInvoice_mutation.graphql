@@ -1,0 +1,7 @@
+mutation addInvoice($invoice: InvoiceInput) {
+    addInvoice(invoice: $invoice) {
+        invoiceRef
+        subject
+        description
+    }
+}

@@ -1,0 +1,3 @@
+mutation removeInvoice($invoiceRef: String!) {
+    removeInvoice(invoiceRef: $invoiceRef)
+}

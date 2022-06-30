@@ -1,0 +1,3 @@
+mutation renderInvoice($invoiceRef: String!, $template: String!) {
+    renderInvoice(invoiceRef: $invoiceRef,template: $template)
+}
