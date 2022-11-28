@@ -132,11 +132,13 @@ const SideDrawer = ({
     </Box>
 );
 
-export default {
+const exports = {
   Root,
   Header,
   SideNav,
   SidePane,
   SideDrawer,
-  Main,
-};
+  Main
+}
+
+export default exports
