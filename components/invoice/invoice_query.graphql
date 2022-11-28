@@ -5,6 +5,7 @@ query invoice($invoiceRef: String!) {
         description
         place
         greeting
+        currency
         buyer {
             name
             address
@@ -18,6 +19,9 @@ query invoice($invoiceRef: String!) {
             }
             address
             email
+            taxInfo {
+                ustid
+            }
         }
         discounts {
             description

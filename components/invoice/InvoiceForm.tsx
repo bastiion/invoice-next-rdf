@@ -1,27 +1,24 @@
-import {createAjv, JsonSchema} from "@jsonforms/core"
+import {JsonSchema} from "@jsonforms/core"
 import {materialCells, materialRenderers} from "@jsonforms/material-renderers"
 import {JsonForms} from "@jsonforms/react"
 import {useCallback, useEffect, useState} from "react";
 import schemaWithRefs from './invoice.json'
 import JsonRefs from 'json-refs';
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton} from "@mui/material";
 import {ThemeProvider} from "@mui/system";
 import {createTheme} from "@mui/material/styles";
 import {useRouter} from "next/router";
 import {InvoiceInput, useAddInvoiceMutation, useInvoiceQuery} from "../generated/graphql";
+import {invoiceUISchema} from "./invoiceUISchema";
+import {Close} from "@mui/icons-material";
 
 const theme = createTheme()
 
-const refParserOptions = {
-  dereference: {
-    circular: false
-  }
-}
+export const resolveInvoiceSchema = async () =>
+    await JsonRefs.resolveRefs(schemaWithRefs).then(res => {
+      return res.resolved;
+    })
 
-const ajv = createAjv({
-  allErrors: true,
-  verbose: true,
-})
 const defaultRenderers = [
   ...materialRenderers]
 const InvoiceForm = () => {
@@ -34,7 +31,7 @@ const InvoiceForm = () => {
   const [resolvedSchema, setResolvedSchema] = useState<JsonSchema | undefined>()
   const { pathname } = useRouter()
   const { mutateAsync: saveAsync } = useAddInvoiceMutation()
-  const [initalDataSet, setInitalDataSet] = useState(false);
+  const [initialDataSet, setInitialDataSet] = useState(false);
 
   const handleClose = useCallback(() => back(), [back] )
   const handleSave = useCallback(async () => {
@@ -43,39 +40,61 @@ const InvoiceForm = () => {
   }, [data, saveAsync, push] )
 
   useEffect(() => {
-    if(!open) setInitalDataSet(false)
+    setInitialDataSet(false)
   }, [open]);
 
   useEffect(() => {
-    if(!initalDataSet) {
-      setInitalDataSet(true)
-      setData(initialData?.invoice || {})
+    if(!initialDataSet ) {
+      if(!cloneInvoiceRef) {
+        setInitialDataSet(true)
+        setData({})
+      } else if(initialData) {
+        setInitialDataSet(true)
+        setData(initialData?.invoice)
+      }
     }
-  }, [initialData, initalDataSet, setData, setInitalDataSet]);
+  }, [initialData, cloneInvoiceRef, initialDataSet, setData, setInitialDataSet]);
 
   useEffect(() => {
     (pathname === '/invoiceCreate') ? setOpen(true) : setOpen(false)
   }, [pathname, setOpen]);
 
   useEffect(() => {
-    JsonRefs.resolveRefs(schemaWithRefs).then(res => {
-      setResolvedSchema(res.resolved);
+    resolveInvoiceSchema().then(res => {
+      setResolvedSchema(res);
     })
   }, []);
 
+  const schema = resolvedSchema?.definitions?.Invoice as JsonSchema
+  const uischema = invoiceUISchema(schema)
+  console.log(uischema)
   return <ThemeProvider theme={theme}>
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Create Invoice</DialogTitle>
+    <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
+      <DialogTitle>Create Invoice
+        <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+        >
+          <Close />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <DialogContentText>
           Create an invoice using the following form or alternatively by cloning an existing invoice
         </DialogContentText>
         <JsonForms
-            schema={resolvedSchema?.definitions?.Invoice}
+            schema={schema}
+            uischema={uischema}
             data={data}
             renderers={defaultRenderers}
             cells={materialCells}
-            onChange={({data}) => setData(data)}
+            onChange={initialDataSet ? ({data}) => setData(data) : () => {}}
         />
       </DialogContent>
       <DialogActions>

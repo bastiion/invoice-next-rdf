@@ -5,6 +5,7 @@ query invoices {
         description
         place
         greeting
+        currency
         buyer {
             name
             address
@@ -18,6 +19,9 @@ query invoices {
             }
             address
             email
+            taxInfo {
+                ustid
+            }
         }
         discounts {
             description
