@@ -3,7 +3,7 @@ import Head from 'next/head'
 import {
   Buyer,
   Seller,
-  TradeItem,
+  TradeItem, useAddInvoiceMutation,
   useInvoiceQuery,
   usePdfOfInvoiceQuery, useRemoveInvoiceMutation,
   useRenderInvoiceMutation
@@ -11,13 +11,20 @@ import {
 import {useRouter} from "next/router";
 import {Button, Icon, Label, Segment, Table} from "semantic-ui-react";
 import invoices from "./invoices";
-import React, {useCallback} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Avatar, AvatarGroup, Box, ListDivider, Sheet, Typography} from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import {Close, EditOutlined} from "@mui/icons-material";
+import {Close, EditOutlined, HorizontalSplit} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import Layout from '../components/layout/Layout';
 import {useQueryClient} from "react-query";
+import {CalculatedInvoice} from "../components/util/types/invoice";
+import calculateInvoice from "../components/util/calculate-invoice";
+import type { Invoice as InvoiceType } from '../components/util/types/invoice'
+import {Grid} from "@mui/material";
+import Image from "next/image";
+import {TradeItemDataGrid} from "../components/invoice/TradeItemDataGrid";
+import { TemplateSelect } from '../components/invoice/TemplateSelect';
 
 const staticServerURL = 'http://localhost:8001/'
 
@@ -68,9 +75,12 @@ const Invoice: NextPage = () => {
   const invoiceRef = query.invoiceRef as string
   const enabled = Boolean(invoiceRef)
   const { data } = useInvoiceQuery({ invoiceRef }, { enabled })
+  const [editableInvoice, setEditableInvoice] = useState<InvoiceType | undefined>();
   const { data: pdfData } = usePdfOfInvoiceQuery({ invoiceRef }, { enabled })
   const title = `Rechnung: ${data?.invoice?.subject}`
   const queryClient = useQueryClient()
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
+  const { mutateAsync: saveAsync } = useAddInvoiceMutation()
   const { mutateAsync: renderAsync } = useRenderInvoiceMutation({
     onSuccess: () => {
       [ ['invoice', {'invoiceRef': invoiceRef}],
@@ -83,18 +93,49 @@ const Invoice: NextPage = () => {
       [['invoices' ]].forEach( qK => queryClient.invalidateQueries(qK))
     }
   })
+  const [hasChanged, setHasChanged] = useState(false);
+
+  const [invoiceCalculated, setInvoiceCalculated] = useState<CalculatedInvoice | undefined>();
+  useEffect(() => {
+    if(editableInvoice) {
+      // @ts-ignore
+      setInvoiceCalculated(calculateInvoice(editableInvoice))
+    }
+  }, [editableInvoice, setInvoiceCalculated])
+  useEffect(() => {
+    if(data?.invoice) {
+      // @ts-ignore
+      setEditableInvoice(data?.invoice)
+    }
+  }, [data, setEditableInvoice])
+
+
+
+  const handleSave = useCallback(
+      async () => {
+        await saveAsync({invoice: editableInvoice})
+        setHasChanged(false)
+      }, [saveAsync, editableInvoice],)
 
   const handleRemove = useCallback(
       async () => {
         await removeAsync({ invoiceRef })
         push('/')
-      },
-      [invoiceRef, removeAsync])
+      }, [invoiceRef, removeAsync, push])
   const handleRenderPdf = useCallback(
       async () => {
-        await renderAsync({ invoiceRef, template: 'rechnung_sebastian_tilsch.tex'})
-      },
-      [invoiceRef, renderAsync])
+        selectedTemplateId && await renderAsync({ invoiceRef, template: selectedTemplateId})
+      }, [invoiceRef, renderAsync, selectedTemplateId])
+
+  const onEditComplete = useCallback(
+      (tradeItems: TradeItem[]) => {
+        setHasChanged(true)
+        // @ts-ignore
+        setEditableInvoice((prevState: InvoiceType | undefined) => {
+          return prevState && {...prevState, tradeItems} })
+      }, [setEditableInvoice, setHasChanged],
+  );
+
 
   const pdfLink = pdfData?.pdfOfInvoice?.length && `${staticServerURL}${pdfData?.pdfOfInvoice}` || undefined
   const imageSrc = pdfLink?.replace('.pdf', '.png')
@@ -117,7 +158,7 @@ const Invoice: NextPage = () => {
                 }}
             >
               <Typography
-                  variant={'h2'}
+                  level={'h2'}
                   textColor="text.tertiary"
                   textTransform="uppercase"
                   letterSpacing="md"
@@ -127,21 +168,41 @@ const Invoice: NextPage = () => {
               </Typography>
               <Button
                   onClick={() => push('/invoiceCreate?' + (new URLSearchParams([['cloneInvoiceRef', data?.invoice?.invoiceRef || '']])).toString())}
-                  size="sm"
+                  size="medium"
                   variant="plain"
                   sx={{ fontSize: 'xs', px: 1 }}>
                  clone invoice
               </Button>
             </Box>
-          <BuyerSegment buyer={data.invoice.buyer} />
-          <SellerSegement seller={data.invoice.seller} />
+            <Typography
+                level={'body1'}
+                textColor="text.secondary"
+            >
+              {data.invoice.description.split('\n').map(t => (<>{t}<br /></>))}
+            </Typography>
+
+            <Grid container
+                  spacing={2}
+                  sx={{ pt: 2 }}>
+              <Grid item xs={6}>
+                <BuyerSegment buyer={data.invoice.buyer} />
+              </Grid>
+              <Grid item xs={6}>
+              <SellerSegement seller={data.invoice.seller} />
+              </Grid>
+            </Grid>
           <TradeitemsTable tradeItems={data.invoice.tradeItems} />
           {pdfLink && <a href={pdfLink} target='_blank' rel="noreferrer">
             <Icon name='file pdf outline' size='huge'></Icon>
           </a>
           }
-            <Button onClick={handleRenderPdf}>render</Button>
+            <Button onClick={handleRenderPdf} disabled={!selectedTemplateId}>render</Button>
+            <TemplateSelect templateId={selectedTemplateId} onChange={setSelectedTemplateId} />
             <Button onClick={handleRemove} color='red'>remove invoice</Button>
+            {hasChanged && <Button onClick={handleSave} color='green'>save changes</Button>}
+
+            {data.invoice.tradeItems && <TradeItemDataGrid tradeItems={data.invoice.tradeItems} onTradeItemsChange={onEditComplete} />}
+
           </Layout.Main>}
         <Sheet
             sx={{
@@ -158,21 +219,19 @@ const Invoice: NextPage = () => {
             </IconButton>
           </Box>
           <ListDivider component="hr" />
-          <AspectRatio ratio={3/8}>
-            <img
+          {imageSrc && <AspectRatio ratio={3/8}>
+            <Image
+                layout='fill'
                 alt=""
                 src={imageSrc}
             />
-          </AspectRatio>
+          </AspectRatio>}
           <Box sx={{ p: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
             <Typography level="body2" mr={1}>
               Shared with
             </Typography>
             <AvatarGroup size="sm" sx={{ '--Avatar-size': '24px' }}>
               <Avatar src="/static/images/avatar/1.jpg" />
-              <Avatar src="/static/images/avatar/2.jpg" />
-              <Avatar src="/static/images/avatar/3.jpg" />
-              <Avatar src="/static/images/avatar/4.jpg" />
             </AvatarGroup>
           </Box>
           <ListDivider component="hr" />
@@ -195,11 +254,6 @@ const Invoice: NextPage = () => {
               3,6 MB (3,258,385 bytes)
             </Typography>
 
-            <Typography level="body2">Storage used</Typography>
-            <Typography level="body2" textColor="text.primary">
-              3,6 MB (3,258,385 bytes)
-            </Typography>
-
             <Typography level="body2">Owner</Typography>
             <Typography level="body2" textColor="text.primary">
                Winzlieb
@@ -215,8 +269,33 @@ const Invoice: NextPage = () => {
             </Typography>
           </Box>
           <ListDivider component="hr" />
+          <Box
+              sx={{
+                gap: 2,
+                p: 2,
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr',
+                '& > *:nth-child(odd)': { color: 'text.secondary' },
+              }}
+          >
+            <Typography level="body2">net price</Typography>
+            <Typography level="body2" textColor="text.primary">
+              {invoiceCalculated?.total.netGrandTotal}
+            </Typography>
+
+            <Typography level="body2">total</Typography>
+            <Typography level="body2" textColor="text.primary">
+              {invoiceCalculated?.total.grossGrandTotal}
+            </Typography>
+
+            <Typography level="body2">tax</Typography>
+            <Typography level="body2" textColor="text.primary">
+              {invoiceCalculated?.taxes.map(({name, total}) =>  `${name}: ${total} ${invoiceCalculated?.currency || 'Taler'}` ).join(',')}
+            </Typography>
+          </Box>
+          <ListDivider component="hr" />
           <Box sx={{ py: 2, px: 1 }}>
-            <Button variant="plain" size="sm" endIcon={<EditOutlined />}>
+            <Button variant="plain" size="medium" endIcon={<EditOutlined />}>
               Add a description
             </Button>
           </Box>
