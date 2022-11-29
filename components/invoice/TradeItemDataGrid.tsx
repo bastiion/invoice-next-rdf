@@ -1,8 +1,8 @@
 import {ColumnRaw} from "../util/datagrid/columnRaw";
 import DeclarativeDataGrid from "../datagrid/DeclarativeDataGrid";
 import React, {useCallback} from "react";
-import {TradeItem} from "../util/types/invoice";
 import {TypeEditInfo} from "@inovua/reactdatagrid-community/types";
+import {TradeItem} from "../generated/graphql";
 
 const columnsRaw: ColumnRaw[] = [
   { name: 'optional', header: 'optional', type: 'boolean', defaultWidth: 20},
