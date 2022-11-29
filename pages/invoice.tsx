@@ -14,7 +14,7 @@ import invoices from "./invoices";
 import React, {useCallback, useEffect, useState} from "react";
 import {Avatar, AvatarGroup, Box, ListDivider, Sheet, Typography} from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import {Close, EditOutlined, HorizontalSplit} from "@mui/icons-material";
+import {Close, EditOutlined} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import Layout from '../components/layout/Layout';
 import {useQueryClient} from "react-query";
