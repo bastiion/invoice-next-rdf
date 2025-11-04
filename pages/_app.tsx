@@ -5,17 +5,20 @@ import { StyledEngineProvider } from '@mui/material/styles';
 import MyQueryClientProvider from "../components/QueryClientProvider";
 import {SidebarVisible} from "../components/layout/SidebarVisible";
 import InvoiceForm from "../components/invoice/InvoiceForm";
+import { AuthProvider } from "../components/auth/AuthContext";
 
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <MyQueryClientProvider>
-    <StyledEngineProvider injectFirst>
-      <InvoiceForm />
-      <SidebarVisible>
-        <Component {...pageProps} />
-      </SidebarVisible>
-    </StyledEngineProvider>
-  </MyQueryClientProvider>
+  return <AuthProvider>
+    <MyQueryClientProvider>
+      <StyledEngineProvider injectFirst>
+        <InvoiceForm />
+        <SidebarVisible>
+          <Component {...pageProps} />
+        </SidebarVisible>
+      </StyledEngineProvider>
+    </MyQueryClientProvider>
+  </AuthProvider>
 }
 
 export default MyApp

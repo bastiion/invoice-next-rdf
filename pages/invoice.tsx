@@ -9,12 +9,11 @@ import {
   useRenderInvoiceMutation
 } from "../components/generated/graphql";
 import {useRouter} from "next/router";
-import {Button, Icon, Label, Segment, Table} from "semantic-ui-react";
-import invoices from "./invoices";
+import {Button, Label, Segment, Table} from "semantic-ui-react";
 import React, {useCallback, useEffect, useState} from "react";
-import {Avatar, AvatarGroup, Box, ListDivider, Sheet, Typography} from "@mui/joy";
+import {Box, ListDivider, Sheet, Typography, Button as JoyButton, Checkbox} from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import {Close, EditOutlined} from "@mui/icons-material";
+import {Close, PictureAsPdf, Delete, Save, Refresh} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import Layout from '../components/layout/Layout';
 import {useQueryClient} from "react-query";
@@ -25,8 +24,8 @@ import {Grid} from "@mui/material";
 import Image from "next/image";
 import {TradeItemDataGrid} from "../components/invoice/TradeItemDataGrid";
 import { TemplateSelect } from '../components/invoice/TemplateSelect';
+import config from '../components/config';
 
-const staticServerURL = 'http://localhost:8001/'
 
 const SellerSegement = ({seller}: { seller: Seller}) => {
   return <Segment>
@@ -76,6 +75,7 @@ const Invoice: NextPage = () => {
   const enabled = Boolean(invoiceRef)
   const { data } = useInvoiceQuery({ invoiceRef }, { enabled })
   const [editableInvoice, setEditableInvoice] = useState<InvoiceType | undefined>();
+  const [enableZugferd, setEnableZugferd] = useState(false);
   const { data: pdfData } = usePdfOfInvoiceQuery({ invoiceRef }, { enabled })
   const title = `Rechnung: ${data?.invoice?.subject}`
   const queryClient = useQueryClient()
@@ -94,6 +94,7 @@ const Invoice: NextPage = () => {
     }
   })
   const [hasChanged, setHasChanged] = useState(false);
+  const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
 
   const [invoiceCalculated, setInvoiceCalculated] = useState<CalculatedInvoice | undefined>();
   useEffect(() => {
@@ -122,10 +123,24 @@ const Invoice: NextPage = () => {
         await removeAsync({ invoiceRef })
         push('/')
       }, [invoiceRef, removeAsync, push])
+      
+  const handleRemoveClick = useCallback(() => {
+    setShowRemoveConfirmation(true)
+  }, [])
+  
+  const handleRemoveConfirm = useCallback(() => {
+    handleRemove()
+    setShowRemoveConfirmation(false)
+  }, [handleRemove])
+  
+  const handleRemoveCancel = useCallback(() => {
+    setShowRemoveConfirmation(false)
+  }, [])
+  
   const handleRenderPdf = useCallback(
       async () => {
-        selectedTemplateId && await renderAsync({ invoiceRef, template: selectedTemplateId})
-      }, [invoiceRef, renderAsync, selectedTemplateId])
+        selectedTemplateId && await renderAsync({ invoiceRef, template: selectedTemplateId, enableZugferd})
+      }, [invoiceRef, renderAsync, selectedTemplateId, enableZugferd])
 
   const onEditComplete = useCallback(
       (tradeItems: TradeItem[]) => {
@@ -137,7 +152,7 @@ const Invoice: NextPage = () => {
   );
 
 
-  const pdfLink = pdfData?.pdfOfInvoice?.length && `${staticServerURL}${pdfData?.pdfOfInvoice}` || undefined
+  const pdfLink = pdfData?.pdfOfInvoice?.length && `${config.staticContentURL}/${pdfData?.pdfOfInvoice}` || undefined
   const imageSrc = pdfLink?.replace('.pdf', '.png')
   return (
       <>
@@ -192,17 +207,16 @@ const Invoice: NextPage = () => {
               </Grid>
             </Grid>
           <TradeitemsTable tradeItems={data.invoice.tradeItems} />
-          {pdfLink && <a href={pdfLink} target='_blank' rel="noreferrer">
-            <Icon name='file pdf outline' size='huge'></Icon>
-          </a>
-          }
-            <Button onClick={handleRenderPdf} disabled={!selectedTemplateId}>render</Button>
-            <TemplateSelect templateId={selectedTemplateId} onChange={setSelectedTemplateId} />
-            <Button onClick={handleRemove} color='red'>remove invoice</Button>
-            {hasChanged && <Button onClick={handleSave} color='green'>save changes</Button>}
 
-            {data.invoice.tradeItems && <TradeItemDataGrid tradeItems={data.invoice.tradeItems} onTradeItemsChange={onEditComplete} />}
 
+            <Box sx={{ mt: 2 }}>
+                  <Typography level="h3">
+                    Technical Table
+                  </Typography>
+                <Box sx={{ mt: 2 }}>
+                  {data.invoice.tradeItems && <TradeItemDataGrid tradeItems={data.invoice.tradeItems} onTradeItemsChange={onEditComplete} />}
+                </Box>
+            </Box>
           </Layout.Main>}
         <Sheet
             sx={{
@@ -210,96 +224,164 @@ const Invoice: NextPage = () => {
               borderLeft: '1px solid',
               borderColor: 'neutral.outlinedBorder',
               bgcolor: 'background.componentBg',
+              width: '320px',
+              overflow: 'auto'
             }}
         >
-          <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ flex: 1 }}>{data?.invoice?.subject}</Typography>
-            <IconButton variant="outlined"  size="sm">
+          {/* Header */}
+          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography level="h4" sx={{ flex: 1, fontWeight: 'lg' }}>
+              {data?.invoice?.subject}
+            </Typography>
+            <IconButton variant="outlined" size="sm">
               <Close />
             </IconButton>
           </Box>
-          <ListDivider component="hr" />
-          {imageSrc && <AspectRatio ratio={3/8}>
-            <Image
-                layout='fill'
-                alt=""
-                src={imageSrc}
-            />
-          </AspectRatio>}
-          <Box sx={{ p: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
-            <Typography level="body2" mr={1}>
-              Shared with
-            </Typography>
-            <AvatarGroup size="sm" sx={{ '--Avatar-size': '24px' }}>
-              <Avatar src="/static/images/avatar/1.jpg" />
-            </AvatarGroup>
+
+          {/* PDF Preview */}
+          {imageSrc && (
+            <Box sx={{ p: 2 }}>
+              <AspectRatio ratio={3/4} sx={{ borderRadius: 'sm', overflow: 'hidden' }}>
+                <Image
+                  layout='fill'
+                  alt="Invoice PDF Preview"
+                  src={imageSrc}
+                />
+              </AspectRatio>
+            </Box>
+          )}
+
+          {/* PDF Actions */}
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {pdfLink && (
+                <JoyButton
+                  component="a"
+                  href={pdfLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  variant="outlined"
+                  fullWidth
+                >
+                  <PictureAsPdf sx={{ mr: 1 }} />
+                  View PDF
+                </JoyButton>
+              )}
+              
+              <Box>
+                <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', gap: 2 }}>
+                  <Typography level="body2" sx={{ mb: 1, fontWeight: 'md' }}>
+                    Template Selection
+                  </Typography>
+                  <TemplateSelect templateId={selectedTemplateId} onChange={setSelectedTemplateId} />
+                </Box>
+                <Checkbox
+                  label="Enable ZUGFeRD"
+                  checked={enableZugferd}
+                  onChange={(e) => setEnableZugferd(e.target.checked)}
+                />
+                <JoyButton
+                  onClick={handleRenderPdf}
+                  disabled={!selectedTemplateId}
+                  variant="soft"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                >
+                  <Refresh sx={{ mr: 1 }} />
+                  Render PDF
+                </JoyButton>
+              </Box>
+            </Box>
           </Box>
+
           <ListDivider component="hr" />
-          <Box
-              sx={{
-                gap: 2,
-                p: 2,
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                '& > *:nth-child(odd)': { color: 'text.secondary' },
-              }}
-          >
-            <Typography level="body2">Type</Typography>
-            <Typography level="body2" textColor="text.primary">
-              PDF
-            </Typography>
 
-            <Typography level="body2">Size</Typography>
-            <Typography level="body2" textColor="text.primary">
-              3,6 MB (3,258,385 bytes)
+          {/* Invoice Details */}
+          <Box sx={{ p: 2 }}>
+            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+              Invoice Details
             </Typography>
-
-            <Typography level="body2">Owner</Typography>
-            <Typography level="body2" textColor="text.primary">
-               Winzlieb
-            </Typography>
-
-            <Typography level="body2">Modified</Typography>
-            <Typography level="body2" textColor="text.primary">
-            </Typography>
-
-            <Typography level="body2">Place</Typography>
-            <Typography level="body2" textColor="text.primary">
-              {data?.invoice?.place}
-            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography level="body2" textColor="text.secondary">Place</Typography>
+                <Typography level="body2">{data?.invoice?.place}</Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography level="body2" textColor="text.secondary">Owner</Typography>
+                <Typography level="body2">Winzlieb</Typography>
+              </Box>
+            </Box>
           </Box>
+
           <ListDivider component="hr" />
-          <Box
-              sx={{
-                gap: 2,
-                p: 2,
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                '& > *:nth-child(odd)': { color: 'text.secondary' },
-              }}
-          >
-            <Typography level="body2">net price</Typography>
-            <Typography level="body2" textColor="text.primary">
-              {invoiceCalculated?.total.netGrandTotal}
-            </Typography>
 
-            <Typography level="body2">total</Typography>
-            <Typography level="body2" textColor="text.primary">
-              {invoiceCalculated?.total.grossGrandTotal}
+          {/* Financial Summary */}
+          <Box sx={{ p: 2 }}>
+            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+              Financial Summary
             </Typography>
-
-            <Typography level="body2">tax</Typography>
-            <Typography level="body2" textColor="text.primary">
-              {invoiceCalculated?.taxes.map(({name, total}) =>  `${name}: ${total} ${invoiceCalculated?.currency || 'Taler'}` ).join(',')}
-            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography level="body2" textColor="text.secondary">Net Price</Typography>
+                <Typography level="body2" fontWeight="md">
+                  {invoiceCalculated?.total.netGrandTotal}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography level="body2" textColor="text.secondary">Total</Typography>
+                <Typography level="body2" fontWeight="md">
+                  {invoiceCalculated?.total.grossGrandTotal}
+                </Typography>
+              </Box>
+              
+              <Box>
+                <Typography level="body2" textColor="text.secondary" sx={{ mb: 0.5 }}>
+                  Taxes
+                </Typography>
+                <Typography level="body2">
+                  {invoiceCalculated?.taxes.map(({name, total}) => 
+                    `${name}: ${total} ${invoiceCalculated?.currency || 'Taler'}`
+                  ).join(', ')}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
+
           <ListDivider component="hr" />
-          <Box sx={{ py: 2, px: 1 }}>
-            <Button variant="plain" size="medium" endIcon={<EditOutlined />}>
-              Add a description
-            </Button>
+
+          {/* Actions */}
+          <Box sx={{ p: 2 }}>
+            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+              Actions
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {hasChanged && (
+                <JoyButton
+                  onClick={handleSave}
+                  color="success"
+                  variant="soft"
+                  fullWidth
+                >
+                  <Save sx={{ mr: 1 }} />
+                  Save Changes
+                </JoyButton>
+              )}
+              
+              <JoyButton
+                onClick={handleRemoveClick}
+                color="danger"
+                variant="outlined"
+                fullWidth
+              >
+                <Delete sx={{ mr: 1 }} />
+                Remove Invoice
+              </JoyButton>
+            </Box>
           </Box>
         </Sheet>
+        
       </>
   )
 }

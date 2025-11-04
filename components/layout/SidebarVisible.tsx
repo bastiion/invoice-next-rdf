@@ -9,13 +9,14 @@ import {
   Box,
   Button,
   CssVarsProvider,
+  Input,
   List,
   ListDivider,
   ListItem,
   ListItemButton,
   ListItemContent,
   Sheet,
-  TextField, ThemeProvider,
+  ThemeProvider,
   Typography,
 } from "@mui/joy"
 import type { Theme } from "@mui/joy/styles"
@@ -29,6 +30,7 @@ import Card from "@mui/joy/Card";
 import CardContent from "@mui/joy/CardContent";
 import { Close, EditOutlined, FindInPageRounded, FolderOpen, GridViewRounded, SearchRounded } from "@mui/icons-material";
 import IconButton from "@mui/joy/IconButton";
+import ProfileDropdown from "../auth/ProfileDropdown";
 interface Props {
   children: JSX.Element[] | JSX.Element
 }
@@ -89,7 +91,7 @@ export const SidebarVisible = ({children}: Props) => {
               </IconButton>
               <Typography fontWeight={700}>Graviola - Business Ontology</Typography>
             </Box>
-            <TextField
+            <Input
                 size="sm"
                 placeholder="Search anything..."
                 startDecorator={<SearchRounded color="primary" />}
@@ -108,7 +110,7 @@ export const SidebarVisible = ({children}: Props) => {
                   },
                 }}
             />
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'center' }}>
               <IconButton
                   size="sm"
                   variant="outlined"
@@ -135,6 +137,7 @@ export const SidebarVisible = ({children}: Props) => {
                     { label: 'Files', active: true },
                   ]}
               />
+              <ProfileDropdown />
             </Box>
           </Layout.Header>
           <Layout.SideNav>

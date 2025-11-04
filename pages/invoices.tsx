@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
 import {useInvoicesQuery} from "../components/generated/graphql";
 import {List} from "semantic-ui-react";
 import {useRouter} from "next/router";

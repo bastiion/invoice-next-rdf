@@ -176,6 +176,7 @@ export type MutationRemoveInvoiceArgs = {
 
 
 export type MutationRenderInvoiceArgs = {
+  enableZugferd?: InputMaybe<Scalars['Boolean']>;
   invoiceRef: Scalars['String'];
   template: Scalars['String'];
 };
@@ -327,6 +328,7 @@ export type RemoveInvoiceMutation = { __typename?: 'Mutation', removeInvoice?: b
 export type RenderInvoiceMutationVariables = Exact<{
   invoiceRef: Scalars['String'];
   template: Scalars['String'];
+  enableZugferd?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -519,8 +521,12 @@ export const useRemoveInvoiceMutation = <
       options
     );
 export const RenderInvoiceDocument = `
-    mutation renderInvoice($invoiceRef: String!, $template: String!) {
-  renderInvoice(invoiceRef: $invoiceRef, template: $template)
+    mutation renderInvoice($invoiceRef: String!, $template: String!, $enableZugferd: Boolean) {
+  renderInvoice(
+    invoiceRef: $invoiceRef
+    template: $template
+    enableZugferd: $enableZugferd
+  )
 }
     `;
 export const useRenderInvoiceMutation = <
