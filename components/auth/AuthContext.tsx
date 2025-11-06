@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren, useEffect, createContext, useContext } from 'react';
 import { AuthProvider as OidcProvider, useAuth as useOidcAuth } from 'react-oidc-context';
 import { WebStorageStateStore } from 'oidc-client-ts';
 import { LoginTrap } from './LoginTrap';
@@ -6,17 +6,79 @@ import { LoginTrap } from './LoginTrap';
 type AuthProviderProps = PropsWithChildren;
 
 /**
- * Check if authentication is enabled
+ * Check if authentication is enabled (static at build time)
  */
-function isAuthEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false';
+const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false';
+
+/**
+ * Auth context type
+ */
+type AuthContextType = {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: any;
+  error: any;
+  signinRedirect: () => Promise<void>;
+  signoutRedirect: () => Promise<void>;
+  signinSilent: () => Promise<void>;
+  removeUser: () => Promise<void>;
+};
+
+/**
+ * Create a context for auth that's always available
+ */
+const AuthContext = createContext<AuthContextType | null>(null);
+
+/**
+ * Mock auth object for when authentication is disabled
+ */
+const mockAuth: AuthContextType = {
+  isAuthenticated: false,
+  isLoading: false,
+  user: null,
+  error: null,
+  signinRedirect: () => Promise.resolve(),
+  signoutRedirect: () => Promise.resolve(),
+  signinSilent: () => Promise.resolve(),
+  removeUser: () => Promise.resolve(),
+};
+
+/**
+ * Component that provides auth context from OIDC
+ */
+function AuthContextProvider({ children }: PropsWithChildren) {
+  // This is only rendered when inside OidcProvider, so useOidcAuth is safe
+  const oidcAuth = useOidcAuth();
+  
+  const authValue: AuthContextType = {
+    isAuthenticated: oidcAuth.isAuthenticated,
+    isLoading: oidcAuth.isLoading,
+    user: oidcAuth.user,
+    error: oidcAuth.error || null,
+    signinRedirect: oidcAuth.signinRedirect,
+    signoutRedirect: oidcAuth.signoutRedirect,
+    signinSilent: async () => {
+      await oidcAuth.signinSilent();
+    },
+    removeUser: oidcAuth.removeUser,
+  };
+  
+  return (
+    <AuthContext.Provider value={authValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  // If authentication is disabled, skip the OIDC provider
-  if (!isAuthEnabled()) {
+  // If authentication is disabled, provide mock auth context
+  if (!AUTH_ENABLED) {
     console.log('[AUTH] Authentication is DISABLED in frontend');
-    return <>{children}</>;
+    return (
+      <AuthContext.Provider value={mockAuth}>
+        {children}
+      </AuthContext.Provider>
+    );
   }
 
   // OIDC configuration using Next.js environment variables
@@ -49,9 +111,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <OidcProvider {...oidcConfig}>
-      <AuthMonitor>
-        <LoginTrap>{children}</LoginTrap>
-      </AuthMonitor>
+      <AuthContextProvider>
+        <AuthMonitor>
+          <LoginTrap>{children}</LoginTrap>
+        </AuthMonitor>
+      </AuthContextProvider>
     </OidcProvider>
   );
 }
@@ -103,30 +167,28 @@ function AuthMonitor({ children }: PropsWithChildren) {
   return <>{children}</>;
 }
 
-// Export a hook to use the auth context
-// When auth is disabled, this returns a mock auth object
-export const useAuth = () => {
-  if (!isAuthEnabled()) {
-    // Return a mock auth object when authentication is disabled
-    return {
-      isAuthenticated: false,
-      isLoading: false,
-      user: null,
-      error: null,
-      signinRedirect: () => Promise.resolve(),
-      signoutRedirect: () => Promise.resolve(),
-      signinSilent: () => Promise.resolve(),
-      removeUser: () => Promise.resolve(),
-    } as any;
+/**
+ * Hook to get auth context - always calls hooks unconditionally
+ * Uses our custom AuthContext which is always provided (with mock when disabled)
+ */
+export const useAuth = (): AuthContextType => {
+  // Always call useContext unconditionally
+  const context = useContext(AuthContext);
+  
+  // This should never be null since we always provide the context
+  // But TypeScript needs this check
+  if (!context) {
+    return mockAuth;
   }
-  return useOidcAuth();
+  
+  return context;
 };
 
 /**
  * Generate the account management URL for the current authentication provider
  */
 export function getAccountManagementUrl(): string | null {
-  if (!isAuthEnabled()) {
+  if (!AUTH_ENABLED) {
     return null;
   }
   
