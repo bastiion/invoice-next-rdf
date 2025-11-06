@@ -47,7 +47,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     <Dialog open={open} onClose={onCancel}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <Typography level="body1" textColor="text.secondary">
+        <Typography level="body-md" textColor="text.secondary">
           {message}
         </Typography>
       </DialogContent>

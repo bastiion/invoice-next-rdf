@@ -190,7 +190,7 @@ const Invoice: NextPage = () => {
               </Button>
             </Box>
             <Typography
-                level={'body1'}
+                level={'body-md'}
                 textColor="text.secondary"
             >
               {data.invoice.description.split('\n').map(t => (<>{t}<br /></>))}
@@ -270,7 +270,7 @@ const Invoice: NextPage = () => {
               
               <Box>
                 <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', gap: 2 }}>
-                  <Typography level="body2" sx={{ mb: 1, fontWeight: 'md' }}>
+                  <Typography level="body-sm" sx={{ mb: 1, fontWeight: 'md' }}>
                     Template Selection
                   </Typography>
                   <TemplateSelect templateId={selectedTemplateId} onChange={setSelectedTemplateId} />
@@ -298,18 +298,18 @@ const Invoice: NextPage = () => {
 
           {/* Invoice Details */}
           <Box sx={{ p: 2 }}>
-            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+            <Typography level="h4" sx={{ mb: 2, fontWeight: 'lg' }}>
               Invoice Details
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography level="body2" textColor="text.secondary">Place</Typography>
-                <Typography level="body2">{data?.invoice?.place}</Typography>
+                <Typography level="body-sm" textColor="text.secondary">Place</Typography>
+                <Typography level="body-sm">{data?.invoice?.place}</Typography>
               </Box>
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography level="body2" textColor="text.secondary">Owner</Typography>
-                <Typography level="body2">Winzlieb</Typography>
+                <Typography level="body-sm" textColor="text.secondary">Owner</Typography>
+                <Typography level="body-sm">Winzlieb</Typography>
               </Box>
             </Box>
           </Box>
@@ -318,29 +318,29 @@ const Invoice: NextPage = () => {
 
           {/* Financial Summary */}
           <Box sx={{ p: 2 }}>
-            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+            <Typography level="h4" sx={{ mb: 2, fontWeight: 'lg' }}>
               Financial Summary
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography level="body2" textColor="text.secondary">Net Price</Typography>
-                <Typography level="body2" fontWeight="md">
+                <Typography level="body-sm" textColor="text.secondary">Net Price</Typography>
+                <Typography level="body-sm" fontWeight="md">
                   {invoiceCalculated?.total.netGrandTotal}
                 </Typography>
               </Box>
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography level="body2" textColor="text.secondary">Total</Typography>
-                <Typography level="body2" fontWeight="md">
+                <Typography level="body-sm" textColor="text.secondary">Total</Typography>
+                <Typography level="body-sm" fontWeight="md">
                   {invoiceCalculated?.total.grossGrandTotal}
                 </Typography>
               </Box>
               
               <Box>
-                <Typography level="body2" textColor="text.secondary" sx={{ mb: 0.5 }}>
+                <Typography level="body-sm" textColor="text.secondary" sx={{ mb: 0.5 }}>
                   Taxes
                 </Typography>
-                <Typography level="body2">
+                <Typography level="body-sm">
                   {invoiceCalculated?.taxes.map(({name, total}) => 
                     `${name}: ${total} ${invoiceCalculated?.currency || 'Taler'}`
                   ).join(', ')}
@@ -353,7 +353,7 @@ const Invoice: NextPage = () => {
 
           {/* Actions */}
           <Box sx={{ p: 2 }}>
-            <Typography level="h5" sx={{ mb: 2, fontWeight: 'lg' }}>
+            <Typography level="h4" sx={{ mb: 2, fontWeight: 'lg' }}>
               Actions
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
