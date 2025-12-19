@@ -132,15 +132,27 @@ export type Invoice = {
   __typename?: 'Invoice';
   buyer: Buyer;
   currency: Scalars['String'];
+  date?: Maybe<Scalars['String']>;
   description: Scalars['String'];
   discounts?: Maybe<Array<Discount>>;
   greeting: Scalars['String'];
   invoiceRef: Scalars['String'];
+  isOffer?: Maybe<Scalars['Boolean']>;
+  offerRef?: Maybe<Scalars['String']>;
   place: Scalars['String'];
   sconto?: Maybe<Array<Sconto>>;
   seller: Seller;
   subject?: Maybe<Scalars['String']>;
   tradeItems: Array<TradeItem>;
+  validUntil?: Maybe<Scalars['String']>;
+};
+
+export type InvoiceFile = {
+  __typename?: 'InvoiceFile';
+  createdAt: Scalars['String'];
+  fileName: Scalars['String'];
+  invoice: Invoice;
+  userId: Scalars['String'];
 };
 
 export type InvoiceInput = {
@@ -185,6 +197,8 @@ export type Query = {
   __typename?: 'Query';
   calculatedInvoice?: Maybe<CalculatedInvoice>;
   invoice?: Maybe<Invoice>;
+  invoiceFile?: Maybe<InvoiceFile>;
+  invoiceFiles?: Maybe<Array<Maybe<InvoiceFile>>>;
   invoices?: Maybe<Array<Maybe<Invoice>>>;
   invoices2RDF?: Maybe<Scalars['JSON']>;
   pdfOfInvoice?: Maybe<Scalars['String']>;
@@ -199,6 +213,11 @@ export type QueryCalculatedInvoiceArgs = {
 
 export type QueryInvoiceArgs = {
   invoiceRef: Scalars['String'];
+};
+
+
+export type QueryInvoiceFileArgs = {
+  fileName: Scalars['String'];
 };
 
 
@@ -299,17 +318,29 @@ export type AddInvoiceMutationVariables = Exact<{
 
 export type AddInvoiceMutation = { __typename?: 'Mutation', addInvoice?: { __typename?: 'Invoice', invoiceRef: string, subject?: string | null, description: string } | null };
 
+export type InvoiceFileQueryVariables = Exact<{
+  fileName: Scalars['String'];
+}>;
+
+
+export type InvoiceFileQuery = { __typename?: 'Query', invoiceFile?: { __typename?: 'InvoiceFile', fileName: string, createdAt: string, userId: string, invoice: { __typename?: 'Invoice', invoiceRef: string, date?: string | null, validUntil?: string | null, offerRef?: string | null, isOffer?: boolean | null, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', rate: number, abbreviation: string, name: string } | null } | null }> } } | null };
+
+export type InvoiceFilesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InvoiceFilesQuery = { __typename?: 'Query', invoiceFiles?: Array<{ __typename?: 'InvoiceFile', fileName: string, createdAt: string, userId: string, invoice: { __typename?: 'Invoice', invoiceRef: string, date?: string | null, validUntil?: string | null, offerRef?: string | null, isOffer?: boolean | null, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', rate: number, abbreviation: string, name: string } | null } | null }> } } | null> | null };
+
 export type InvoiceQueryVariables = Exact<{
   invoiceRef: Scalars['String'];
 }>;
 
 
-export type InvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', invoiceRef: string, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', id: string, rate: number, abbreviation: string, name: string } | null } | null }> } | null };
+export type InvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', invoiceRef: string, date?: string | null, validUntil?: string | null, offerRef?: string | null, isOffer?: boolean | null, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', id: string, rate: number, abbreviation: string, name: string } | null } | null }> } | null };
 
 export type InvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type InvoicesQuery = { __typename?: 'Query', invoices?: Array<{ __typename?: 'Invoice', invoiceRef: string, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', rate: number, abbreviation: string, name: string } | null } | null }> } | null> | null };
+export type InvoicesQuery = { __typename?: 'Query', invoices?: Array<{ __typename?: 'Invoice', invoiceRef: string, date?: string | null, validUntil?: string | null, offerRef?: string | null, isOffer?: boolean | null, subject?: string | null, description: string, place: string, greeting: string, currency: string, buyer: { __typename?: 'Buyer', name: string, address: string }, seller: { __typename?: 'Seller', name: string, address: string, email: string, bank: { __typename?: 'Bank', name: string, iban: string, bic: string }, taxInfo?: { __typename?: 'TaxInfo', ustid: string } | null }, discounts?: Array<{ __typename?: 'Discount', description: string, title?: string | null, rate: number }> | null, sconto?: Array<{ __typename?: 'Sconto', days: number, rate: number }> | null, tradeItems: Array<{ __typename?: 'TradeItem', title?: string | null, description: string, unit: string, amount: number, optional?: boolean | null, netPricePerItem: number, taxes?: { __typename?: 'TradeItem_taxes', vat?: { __typename?: 'Tax', rate: number, abbreviation: string, name: string } | null } | null }> } | null> | null };
 
 export type PdfOfInvoiceQueryVariables = Exact<{
   invoiceRef: Scalars['String'];
@@ -358,10 +389,162 @@ export const useAddInvoiceMutation = <
       (variables?: AddInvoiceMutationVariables) => fetcher<AddInvoiceMutation, AddInvoiceMutationVariables>(AddInvoiceDocument, variables)(),
       options
     );
+export const InvoiceFileDocument = `
+    query invoiceFile($fileName: String!) {
+  invoiceFile(fileName: $fileName) {
+    fileName
+    createdAt
+    userId
+    invoice {
+      invoiceRef
+      date
+      validUntil
+      offerRef
+      isOffer
+      subject
+      description
+      place
+      greeting
+      currency
+      buyer {
+        name
+        address
+      }
+      seller {
+        name
+        bank {
+          name
+          iban
+          bic
+        }
+        address
+        email
+        taxInfo {
+          ustid
+        }
+      }
+      discounts {
+        description
+        title
+        rate
+      }
+      sconto {
+        days
+        rate
+      }
+      tradeItems {
+        title
+        description
+        unit
+        amount
+        optional
+        netPricePerItem
+        taxes {
+          vat {
+            rate
+            abbreviation
+            name
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const useInvoiceFileQuery = <
+      TData = InvoiceFileQuery,
+      TError = unknown
+    >(
+      variables: InvoiceFileQueryVariables,
+      options?: UseQueryOptions<InvoiceFileQuery, TError, TData>
+    ) =>
+    useQuery<InvoiceFileQuery, TError, TData>(
+      ['invoiceFile', variables],
+      fetcher<InvoiceFileQuery, InvoiceFileQueryVariables>(InvoiceFileDocument, variables),
+      options
+    );
+export const InvoiceFilesDocument = `
+    query invoiceFiles {
+  invoiceFiles {
+    fileName
+    createdAt
+    userId
+    invoice {
+      invoiceRef
+      date
+      validUntil
+      offerRef
+      isOffer
+      subject
+      description
+      place
+      greeting
+      currency
+      buyer {
+        name
+        address
+      }
+      seller {
+        name
+        bank {
+          name
+          iban
+          bic
+        }
+        address
+        email
+        taxInfo {
+          ustid
+        }
+      }
+      discounts {
+        description
+        title
+        rate
+      }
+      sconto {
+        days
+        rate
+      }
+      tradeItems {
+        title
+        description
+        unit
+        amount
+        optional
+        netPricePerItem
+        taxes {
+          vat {
+            rate
+            abbreviation
+            name
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const useInvoiceFilesQuery = <
+      TData = InvoiceFilesQuery,
+      TError = unknown
+    >(
+      variables?: InvoiceFilesQueryVariables,
+      options?: UseQueryOptions<InvoiceFilesQuery, TError, TData>
+    ) =>
+    useQuery<InvoiceFilesQuery, TError, TData>(
+      variables === undefined ? ['invoiceFiles'] : ['invoiceFiles', variables],
+      fetcher<InvoiceFilesQuery, InvoiceFilesQueryVariables>(InvoiceFilesDocument, variables),
+      options
+    );
 export const InvoiceDocument = `
     query invoice($invoiceRef: String!) {
   invoice(invoiceRef: $invoiceRef) {
     invoiceRef
+    date
+    validUntil
+    offerRef
+    isOffer
     subject
     description
     place
@@ -428,6 +611,10 @@ export const InvoicesDocument = `
     query invoices {
   invoices {
     invoiceRef
+    date
+    validUntil
+    offerRef
+    isOffer
     subject
     description
     place

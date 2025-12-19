@@ -1,6 +1,10 @@
 query invoices {
     invoices {
         invoiceRef
+        date
+        validUntil
+        offerRef
+        isOffer
         subject
         description
         place

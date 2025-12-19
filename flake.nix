@@ -42,12 +42,10 @@
         packages.invoice-next-client = invoiceNextClient;
         defaultPackage = invoiceNextClient;
         devShell = pkgs.mkShell {
-          name = "invoice-next-server";
+          name = "invoice-next-rdf";
           buildInputs = with pkgs; with pkgs.nodePackages; [
             nodejs-16_x
             yarn
-            jiml-renderer
-            texlive.combined.scheme-full
           ];
         shellHook = ''export PATH="./node_modules/.bin:$PATH"'';
         };

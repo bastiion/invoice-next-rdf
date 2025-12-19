@@ -1,6 +1,10 @@
 query invoice($invoiceRef: String!) {
     invoice(invoiceRef: $invoiceRef) {
         invoiceRef
+        date
+        validUntil
+        offerRef
+        isOffer
         subject
         description
         place

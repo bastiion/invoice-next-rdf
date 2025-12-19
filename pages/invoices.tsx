@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import {useInvoicesQuery} from "../components/generated/graphql";
+import {useInvoiceFilesQuery} from "../components/generated/graphql";
 import {List} from "semantic-ui-react";
 import {useRouter} from "next/router";
 import Layout from "../components/layout/Layout";
@@ -9,7 +9,7 @@ import React from "react";
 
 const Invoices: NextPage = () => {
   const { push } = useRouter()
-  const { data } = useInvoicesQuery()
+  const { data } = useInvoiceFilesQuery()
   return (
       <>
         <Head>
@@ -20,13 +20,13 @@ const Invoices: NextPage = () => {
         <Layout.Main>
           <h1>Invoices</h1>
           <List divided relaxed>
-            {data?.invoices?.map(invoice => {
-              return invoice && (
-                  <List.Item key={invoice.invoiceRef}>
+            {data?.invoiceFiles?.map(invoiceFile => {
+              return invoiceFile && (
+                  <List.Item key={invoiceFile.fileName}>
                     <List.Icon name='file' size='large' verticalAlign='middle' />
                     <List.Content>
-                      <List.Header as='a' onClick={() =>  push(`/invoice/?invoiceRef=${invoice.invoiceRef}`)}>{invoice.subject}</List.Header>
-                      <List.Description as='a'>{invoice.buyer.name + ' ' + invoice.invoiceRef}</List.Description>
+                      <List.Header as='a' onClick={() =>  push(`/invoice/?fileName=${invoiceFile.fileName}`)}>{invoiceFile.invoice.subject}</List.Header>
+                      <List.Description as='a'>{invoiceFile.invoice.buyer.name + ' ' + invoiceFile.invoice.invoiceRef}</List.Description>
                     </List.Content>
                   </List.Item>
               )

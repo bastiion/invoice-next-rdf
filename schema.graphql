@@ -1,0 +1,231 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Bank {
+    bic: String!
+    iban: String!
+    name: String!
+}
+
+type Buyer {
+    address: String!
+    name: String!
+}
+
+type CalculatedDiscount {
+    netPrice: String!
+    netPriceNumber: Float!
+    taxPrice: String!
+    taxPriceNumber: Float!
+}
+
+type CalculatedInvoice {
+    buyer: Buyer!
+    currency: String!
+    description: String!
+    discounts: [CalculatedDiscount!]
+    greeting: String!
+    invoiceRef: String!
+    place: String!
+    sconto: [CalculatedSconto!]
+    seller: Seller!
+    subject: String
+    taxes: [CalculatedTax!]!
+    total: CalculatedTotal!
+    totalOfOptionals: CalculatedTotal
+    tradeItems: [CalculatedTradeItem!]!
+}
+
+type CalculatedSconto {
+    price: String!
+    priceNumber: Float!
+}
+
+type CalculatedTax {
+    abbreviation: String!
+    id: TaxIdentifier!
+    name: String!
+    rate: String!
+    total: String!
+    totalNumber: Float!
+}
+
+type CalculatedTotal {
+    grossGrandTotal: String!
+    netGrandTotal: String!
+}
+
+type CalculatedTradeItem {
+    amount: String!
+    description: String!
+    grossPrice: String!
+    netPrice: String!
+    netPriceNumber: Float!
+    netPricePerItem: String!
+    optional: Boolean
+    taxes: CalculatedTradeItem_taxes!
+    title: String
+    unit: String!
+}
+
+type CalculatedTradeItem_taxes {
+    vat: CalculatedTax
+}
+
+type Discount {
+    description: String!
+    rate: Float!
+    title: String
+}
+
+type Invoice {
+    buyer: Buyer!
+    currency: String!
+    description: String!
+    discounts: [Discount!]
+    greeting: String!
+    invoiceRef: String!
+    place: String!
+    sconto: [Sconto!]
+    seller: Seller!
+    subject: String
+    tradeItems: [TradeItem!]!
+}
+
+type Mutation {
+    addInvoice(invoice: InvoiceInput): Invoice
+    removeInvoice(invoiceRef: String!): Boolean
+    renderInvoice(invoiceRef: String!, template: String!): Boolean
+}
+
+type Query {
+    calculatedInvoice(invoiceRef: String!): CalculatedInvoice
+    invoice(invoiceRef: String!): Invoice
+    invoices: [Invoice]
+    pdfOfInvoice(invoiceRef: String!): String
+    templates: [String]
+}
+
+type Sconto {
+    days: Float!
+    rate: Float!
+}
+
+type Seller {
+    address: String!
+    bank: Bank!
+    email: String!
+    name: String!
+    taxInfo: TaxInfo
+}
+
+type Tax {
+    abbreviation: String!
+    id: String!
+    name: String!
+    rate: Float!
+}
+
+type TaxInfo {
+    ustid: String!
+}
+
+type TradeItem {
+    amount: Float!
+    description: String!
+    netPricePerItem: Float!
+    optional: Boolean
+    taxes: TradeItem_taxes!
+    title: String
+    unit: String!
+}
+
+type TradeItem_taxes {
+    vat: Tax
+}
+
+enum TaxIdentifier {
+    vat
+}
+
+input BankInput {
+    bic: String!
+    iban: String!
+    name: String!
+}
+
+input BuyerInput {
+    address: String!
+    name: String!
+}
+
+input CalculatedTaxInput {
+    abbreviation: String!
+    id: TaxIdentifier!
+    name: String!
+    rate: String!
+    total: String!
+    totalNumber: Float!
+}
+
+input DiscountInput {
+    description: String!
+    rate: Float!
+    title: String
+}
+
+input InvoiceInput {
+    buyer: BuyerInput!
+    currency: String!
+    description: String!
+    discounts: [DiscountInput!]
+    greeting: String!
+    invoiceRef: String!
+    place: String!
+    sconto: [ScontoInput!]
+    seller: SellerInput!
+    subject: String
+    tradeItems: [TradeItemInput!]!
+}
+
+input ScontoInput {
+    days: Float!
+    rate: Float!
+}
+
+input SellerInput {
+    address: String!
+    bank: BankInput!
+    email: String!
+    name: String!
+    taxInfo: TaxInfoInput
+}
+
+input TaxInfoInput {
+    ustid: String!
+}
+
+input TaxInput {
+    abbreviation: String!
+    id: String!
+    name: String!
+    rate: Float!
+}
+
+input TradeItemInput {
+    amount: Float!
+    description: String!
+    netPricePerItem: Float!
+    optional: Boolean
+    taxes: TradeItem_taxesInput!
+    title: String
+    unit: String!
+}
+
+input TradeItem_taxesInput {
+    vat: TaxInput
+}

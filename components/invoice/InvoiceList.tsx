@@ -1,6 +1,6 @@
 import { List } from "@mui/joy";
 import { useRouter } from "next/router";
-import { useInvoicesQuery } from "../generated/graphql";
+import { useInvoiceFilesQuery } from "../generated/graphql";
 import ListItemButton from "@mui/joy/ListItemButton";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
@@ -11,7 +11,7 @@ import { filterUndefOrNull } from "../util/notEmpty";
 
 export const InvoiceList = () => {
   const { push } = useRouter()
-  const { data } = useInvoicesQuery()
+  const { data } = useInvoiceFilesQuery()
 
 
   return <List
@@ -20,10 +20,10 @@ export const InvoiceList = () => {
       '& .JoyListItemButton-root': { p: '8px' },
     }}
   >
-    {filterUndefOrNull(data?.invoices).map(invoice => {
-      const fullText = `${invoice.subject} - ${invoice.buyer.name}`;
+    {filterUndefOrNull(data?.invoiceFiles).map(invoiceFile => {
+      const fullText = `${invoiceFile.invoice.subject} - ${invoiceFile.invoice.buyer.name}`;
       return (
-        <ListItemButton key={invoice.invoiceRef} onClick={() => push(`/invoice/?invoiceRef=${invoice.invoiceRef}`)}>
+        <ListItemButton key={invoiceFile.fileName} onClick={() => push(`/invoice/?fileName=${invoiceFile.fileName}`)}>
           <ListItemDecorator sx={{ color: 'inherit' }}>
             <FolderOpenIcon fontSize="small" />
           </ListItemDecorator>

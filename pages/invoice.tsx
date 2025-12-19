@@ -4,7 +4,7 @@ import {
   Buyer,
   Seller,
   TradeItem, useAddInvoiceMutation,
-  useInvoiceQuery,
+  useInvoiceFileQuery,
   usePdfOfInvoiceQuery, useRemoveInvoiceMutation,
   useRenderInvoiceMutation
 } from "../components/generated/graphql";
@@ -71,26 +71,28 @@ const TradeitemsTable = ({tradeItems}: {tradeItems: TradeItem[]}) => {
 
 const Invoice: NextPage = () => {
   const { query, push } = useRouter()
-  const invoiceRef = query.invoiceRef as string
-  const enabled = Boolean(invoiceRef)
-  const { data } = useInvoiceQuery({ invoiceRef }, { enabled })
+  const fileName = query.fileName as string
+  const enabled = Boolean(fileName)
+  const { data } = useInvoiceFileQuery({ fileName }, { enabled })
+  const invoice = data?.invoiceFile?.invoice
+  const invoiceRef = invoice?.invoiceRef
   const [editableInvoice, setEditableInvoice] = useState<InvoiceType | undefined>();
   const [enableZugferd, setEnableZugferd] = useState(false);
-  const { data: pdfData } = usePdfOfInvoiceQuery({ invoiceRef }, { enabled })
-  const title = `Rechnung: ${data?.invoice?.subject}`
+  const { data: pdfData } = usePdfOfInvoiceQuery({ invoiceRef: invoiceRef || '' }, { enabled: Boolean(invoiceRef) })
+  const title = `Rechnung: ${invoice?.subject}`
   const queryClient = useQueryClient()
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
   const { mutateAsync: saveAsync } = useAddInvoiceMutation()
   const { mutateAsync: renderAsync } = useRenderInvoiceMutation({
     onSuccess: () => {
-      [ ['invoice', {'invoiceRef': invoiceRef}],
+      [ ['invoiceFile', {'fileName': fileName}],
         ['pdfOfInvoice', {'invoiceRef': invoiceRef}]
       ].forEach( qK => queryClient.invalidateQueries(qK))
     }
   })
   const { mutateAsync: removeAsync } = useRemoveInvoiceMutation({
     onSuccess: () => {
-      [['invoices' ]].forEach( qK => queryClient.invalidateQueries(qK))
+      [['invoiceFiles' ]].forEach( qK => queryClient.invalidateQueries(qK))
     }
   })
   const [hasChanged, setHasChanged] = useState(false);
@@ -104,11 +106,11 @@ const Invoice: NextPage = () => {
     }
   }, [editableInvoice, setInvoiceCalculated])
   useEffect(() => {
-    if(data?.invoice) {
+    if(invoice) {
       // @ts-ignore
-      setEditableInvoice(data?.invoice)
+      setEditableInvoice(invoice)
     }
-  }, [data, setEditableInvoice])
+  }, [invoice, setEditableInvoice])
 
 
 
@@ -120,8 +122,10 @@ const Invoice: NextPage = () => {
 
   const handleRemove = useCallback(
       async () => {
-        await removeAsync({ invoiceRef })
-        push('/')
+        if (invoiceRef) {
+          await removeAsync({ invoiceRef })
+          push('/')
+        }
       }, [invoiceRef, removeAsync, push])
       
   const handleRemoveClick = useCallback(() => {
@@ -139,7 +143,7 @@ const Invoice: NextPage = () => {
   
   const handleRenderPdf = useCallback(
       async () => {
-        selectedTemplateId && await renderAsync({ invoiceRef, template: selectedTemplateId, enableZugferd})
+        selectedTemplateId && invoiceRef && await renderAsync({ invoiceRef, template: selectedTemplateId, enableZugferd})
       }, [invoiceRef, renderAsync, selectedTemplateId, enableZugferd])
 
   const onEditComplete = useCallback(
@@ -161,7 +165,7 @@ const Invoice: NextPage = () => {
           <meta name="description" content="Invoice and order management" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        {data?.invoice &&
+        {invoice &&
           <Layout.Main>
             <Box
                 sx={{
@@ -182,7 +186,7 @@ const Invoice: NextPage = () => {
                 {title}
               </Typography>
               <Button
-                  onClick={() => push('/invoiceCreate?' + (new URLSearchParams([['cloneInvoiceRef', data?.invoice?.invoiceRef || '']])).toString())}
+                  onClick={() => push('/invoiceCreate?' + (new URLSearchParams([['cloneInvoiceRef', invoice.invoiceRef || '']])).toString())}
                   size="medium"
                   variant="plain"
                   sx={{ fontSize: 'xs', px: 1 }}>
@@ -193,20 +197,20 @@ const Invoice: NextPage = () => {
                 level={'body-md'}
                 textColor="text.secondary"
             >
-              {data.invoice.description.split('\n').map(t => (<>{t}<br /></>))}
+              {invoice.description.split('\n').map(t => (<>{t}<br /></>))}
             </Typography>
 
             <Grid container
                   spacing={2}
                   sx={{ pt: 2 }}>
               <Grid item xs={6}>
-                <BuyerSegment buyer={data.invoice.buyer} />
+                <BuyerSegment buyer={invoice.buyer} />
               </Grid>
               <Grid item xs={6}>
-              <SellerSegement seller={data.invoice.seller} />
+              <SellerSegement seller={invoice.seller} />
               </Grid>
             </Grid>
-          <TradeitemsTable tradeItems={data.invoice.tradeItems} />
+          <TradeitemsTable tradeItems={invoice.tradeItems as TradeItem[]} />
 
 
             <Box sx={{ mt: 2 }}>
@@ -214,7 +218,7 @@ const Invoice: NextPage = () => {
                     Technical Table
                   </Typography>
                 <Box sx={{ mt: 2 }}>
-                  {data.invoice.tradeItems && <TradeItemDataGrid tradeItems={data.invoice.tradeItems} onTradeItemsChange={onEditComplete} />}
+                  {invoice.tradeItems && <TradeItemDataGrid tradeItems={invoice.tradeItems as TradeItem[]} onTradeItemsChange={onEditComplete} />}
                 </Box>
             </Box>
           </Layout.Main>}
@@ -231,7 +235,7 @@ const Invoice: NextPage = () => {
           {/* Header */}
           <Box sx={{ p: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
             <Typography level="h4" sx={{ flex: 1, fontWeight: 'lg' }}>
-              {data?.invoice?.subject}
+              {invoice?.subject}
             </Typography>
             <IconButton variant="outlined" size="sm">
               <Close />
@@ -304,7 +308,7 @@ const Invoice: NextPage = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography level="body-sm" textColor="text.secondary">Place</Typography>
-                <Typography level="body-sm">{data?.invoice?.place}</Typography>
+                <Typography level="body-sm">{invoice?.place}</Typography>
               </Box>
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

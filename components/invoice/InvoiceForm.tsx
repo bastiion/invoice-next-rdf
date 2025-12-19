@@ -8,9 +8,10 @@ import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogT
 import {ThemeProvider} from "@mui/system";
 import {createTheme} from "@mui/material/styles";
 import {useRouter} from "next/router";
-import {InvoiceInput, useAddInvoiceMutation, useInvoiceQuery} from "../generated/graphql";
+import {InvoiceInput, useAddInvoiceMutation, useInvoiceQuery, useInvoiceFilesQuery} from "../generated/graphql";
 import {invoiceUISchema} from "./invoiceUISchema";
 import {Close} from "@mui/icons-material";
+import {useQueryClient} from "react-query";
 
 const theme = createTheme()
 
@@ -30,14 +31,48 @@ const InvoiceForm = () => {
   const [open, setOpen] = useState(false);
   const [resolvedSchema, setResolvedSchema] = useState<JsonSchema | undefined>()
   const { pathname } = useRouter()
-  const { mutateAsync: saveAsync } = useAddInvoiceMutation()
+  const queryClient = useQueryClient()
+  const { mutateAsync: saveAsync } = useAddInvoiceMutation({
+    onSuccess: () => {
+      // Invalidate invoiceFiles to refetch the updated list
+      queryClient.invalidateQueries(['invoiceFiles'])
+    }
+  })
+  const { data: invoiceFilesData, refetch: refetchInvoiceFiles } = useInvoiceFilesQuery()
   const [initialDataSet, setInitialDataSet] = useState(false);
+  const [pendingInvoiceRef, setPendingInvoiceRef] = useState<string | null>(null);
 
   const handleClose = useCallback(() => back(), [back] )
   const handleSave = useCallback(async () => {
     const newInvoice = await saveAsync({ invoice: data as InvoiceInput})
-    newInvoice?.addInvoice?.invoiceRef && push('/invoice?' + (new URLSearchParams([['invoiceRef', newInvoice.addInvoice.invoiceRef]])))
-  }, [data, saveAsync, push] )
+    if (newInvoice?.addInvoice?.invoiceRef) {
+      // Refetch invoiceFiles to get the newly created invoice file
+      const { data: updatedData } = await refetchInvoiceFiles()
+      const invoiceRef = newInvoice.addInvoice.invoiceRef
+      const matchingInvoiceFile = updatedData?.invoiceFiles?.find(
+        invoiceFile => invoiceFile?.invoice.invoiceRef === invoiceRef
+      )
+      if (matchingInvoiceFile?.fileName) {
+        push('/invoice?' + (new URLSearchParams([['fileName', matchingInvoiceFile.fileName]])))
+      } else {
+        // Fallback: set pending and wait for data to update
+        setPendingInvoiceRef(newInvoice.addInvoice.invoiceRef)
+      }
+    }
+  }, [data, saveAsync, push, refetchInvoiceFiles] )
+
+  // Watch for when the invoice appears in the list after save
+  useEffect(() => {
+    if (pendingInvoiceRef && invoiceFilesData?.invoiceFiles) {
+      const matchingInvoiceFile = invoiceFilesData.invoiceFiles.find(
+        invoiceFile => invoiceFile?.invoice.invoiceRef === pendingInvoiceRef
+      )
+      if (matchingInvoiceFile?.fileName) {
+        setPendingInvoiceRef(null)
+        push('/invoice?' + (new URLSearchParams([['fileName', matchingInvoiceFile.fileName]])))
+      }
+    }
+  }, [pendingInvoiceRef, invoiceFilesData, push])
 
   useEffect(() => {
     setInitialDataSet(false)
