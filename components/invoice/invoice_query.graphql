@@ -1,6 +1,7 @@
 query invoice($invoiceRef: String!) {
     invoice(invoiceRef: $invoiceRef) {
         invoiceRef
+        clientRef
         date
         validUntil
         offerRef

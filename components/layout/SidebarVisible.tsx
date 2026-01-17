@@ -9,7 +9,6 @@ import {
   Box,
   Button,
   CssVarsProvider,
-  Input,
   List,
   ListDivider,
   ListItem,
@@ -31,6 +30,7 @@ import CardContent from "@mui/joy/CardContent";
 import { Close, EditOutlined, FindInPageRounded, FolderOpen, GridViewRounded, SearchRounded } from "@mui/icons-material";
 import IconButton from "@mui/joy/IconButton";
 import ProfileDropdown from "../auth/ProfileDropdown";
+import InvoiceSearchAutocomplete from "../search/InvoiceSearchAutocomplete";
 interface Props {
   children: JSX.Element[] | JSX.Element
 }
@@ -91,19 +91,8 @@ export const SidebarVisible = ({children}: Props) => {
               </IconButton>
               <Typography fontWeight={700}>Graviola - Business Ontology</Typography>
             </Box>
-            <Input
-                size="sm"
-                placeholder="Search anything..."
-                startDecorator={<SearchRounded color="primary" />}
-                endDecorator={
-                  <IconButton variant="outlined" size="sm">
-                    <Typography fontWeight="lg" fontSize="sm" textColor="text.tertiary">
-                      /
-                    </Typography>
-                  </IconButton>
-                }
+            <InvoiceSearchAutocomplete
                 sx={{
-                  flexBasis: '500px',
                   display: {
                     xs: 'none',
                     sm: 'flex',

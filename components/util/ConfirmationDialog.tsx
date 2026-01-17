@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
   Dialog,
@@ -8,28 +8,25 @@ import {
   Box
 } from '@mui/material';
 import { Typography } from '@mui/joy';
+import NiceModal, {useModal} from '@ebay/nice-modal-react';
 
 interface ConfirmationDialogProps {
-  open: boolean;
   title: string;
   message: string;
   confirmText?: string;
   cancelText?: string;
-  onConfirm: () => void;
-  onCancel: () => void;
   severity?: 'danger' | 'warning' | 'info';
 }
 
-export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
-  open,
+export const ConfirmationDialog = NiceModal.create<ConfirmationDialogProps>(({
   title,
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  onConfirm,
-  onCancel,
   severity = 'danger'
 }) => {
+  const modal = useModal();
+
   const getColor = () => {
     switch (severity) {
       case 'danger':
@@ -43,8 +40,18 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     }
   };
 
+  const handleConfirm = useCallback(() => {
+    modal.resolve(true);
+    modal.hide();
+  }, [modal]);
+
+  const handleCancel = useCallback(() => {
+    modal.resolve(null);
+    modal.hide();
+  }, [modal]);
+
   return (
-    <Dialog open={open} onClose={onCancel}>
+    <Dialog open={modal.visible} onClose={handleCancel}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Typography level="body-md" textColor="text.secondary">
@@ -53,14 +60,14 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Box sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'flex-end' }}>
-          <Button variant="outlined" onClick={onCancel}>
+          <Button variant="outlined" onClick={handleCancel}>
             {cancelText}
           </Button>
-          <Button color={getColor()} onClick={onConfirm}>
+          <Button color={getColor()} onClick={handleConfirm}>
             {confirmText}
           </Button>
         </Box>
       </DialogActions>
     </Dialog>
   );
-}; 
+}); 

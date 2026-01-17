@@ -2,7 +2,7 @@
     description = "invoice generation frontend";
 
     inputs = {
-         nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+         nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
          flake-utils.url = "github:numtide/flake-utils";
          jiml-renderer-flake.url = "github:bastiion/jiml-renderer";
     };
@@ -44,7 +44,7 @@
         devShell = pkgs.mkShell {
           name = "invoice-next-rdf";
           buildInputs = with pkgs; with pkgs.nodePackages; [
-            nodejs-16_x
+            nodejs
             yarn
           ];
         shellHook = ''export PATH="./node_modules/.bin:$PATH"'';

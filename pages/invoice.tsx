@@ -5,8 +5,10 @@ import {
   Seller,
   TradeItem, useAddInvoiceMutation,
   useInvoiceFileQuery,
+  useInvoiceFilesQuery,
   usePdfOfInvoiceQuery, useRemoveInvoiceMutation,
-  useRenderInvoiceMutation
+  useRenderInvoiceMutation,
+  useUpdateInvoiceMutation
 } from "../components/generated/graphql";
 import {useRouter} from "next/router";
 import {Button, Label, Segment, Table} from "semantic-ui-react";
@@ -25,18 +27,20 @@ import Image from "next/image";
 import {TradeItemDataGrid} from "../components/invoice/TradeItemDataGrid";
 import { TemplateSelect } from '../components/invoice/TemplateSelect';
 import config from '../components/config';
+import dayjs from 'dayjs';
+import NiceModal from '@ebay/nice-modal-react';
 
 
 const SellerSegement = ({seller}: { seller: Seller}) => {
   return <Segment>
     <h2>{seller.name}</h2>
-    <p>{seller.address.split('\n').map(t =>  <>{t}<br/></> )}</p>
+    <p>{seller.address.split('\n').map((t, index) =>  <React.Fragment key={index}>{t}<br/></React.Fragment> )}</p>
   </Segment>
 }
 const BuyerSegment = ({buyer}: { buyer: Buyer}) => {
   return <Segment>
     <h2>{buyer.name}</h2>
-    <p>{buyer.address.split('\n').map(t =>  <>{t}<br/></> )}</p>
+    <p>{buyer.address.split('\n').map((t, index) =>  <React.Fragment key={index}>{t}<br/></React.Fragment> )}</p>
   </Segment>
 }
 
@@ -83,6 +87,14 @@ const Invoice: NextPage = () => {
   const queryClient = useQueryClient()
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
   const { mutateAsync: saveAsync } = useAddInvoiceMutation()
+  const { mutateAsync: updateAsync } = useUpdateInvoiceMutation({
+    onSuccess: () => {
+      [ ['invoiceFile', {'fileName': fileName}],
+        ['pdfOfInvoice', {'invoiceRef': invoiceRef}],
+        ['invoiceFiles']
+      ].forEach( qK => queryClient.invalidateQueries(qK))
+    }
+  })
   const { mutateAsync: renderAsync } = useRenderInvoiceMutation({
     onSuccess: () => {
       [ ['invoiceFile', {'fileName': fileName}],
@@ -96,7 +108,7 @@ const Invoice: NextPage = () => {
     }
   })
   const [hasChanged, setHasChanged] = useState(false);
-  const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
+  const { data: invoiceFilesData, refetch: refetchInvoiceFiles } = useInvoiceFilesQuery();
 
   const [invoiceCalculated, setInvoiceCalculated] = useState<CalculatedInvoice | undefined>();
   useEffect(() => {
@@ -128,18 +140,18 @@ const Invoice: NextPage = () => {
         }
       }, [invoiceRef, removeAsync, push])
       
-  const handleRemoveClick = useCallback(() => {
-    setShowRemoveConfirmation(true)
-  }, [])
-  
-  const handleRemoveConfirm = useCallback(() => {
-    handleRemove()
-    setShowRemoveConfirmation(false)
+  const handleRemoveClick = useCallback(async () => {
+    const confirmed = await NiceModal.show('ConfirmationDialog', {
+      title: 'Remove Invoice',
+      message: 'Are you sure you want to remove this invoice? This action cannot be undone.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      severity: 'danger'
+    });
+    if (confirmed) {
+      handleRemove();
+    }
   }, [handleRemove])
-  
-  const handleRemoveCancel = useCallback(() => {
-    setShowRemoveConfirmation(false)
-  }, [])
   
   const handleRenderPdf = useCallback(
       async () => {
@@ -154,6 +166,50 @@ const Invoice: NextPage = () => {
           return prevState && {...prevState, tradeItems} })
       }, [setEditableInvoice, setHasChanged],
   );
+
+  const handleEditInvoice = useCallback(async () => {
+    if (!invoice || !fileName) return;
+    
+    const updatedInvoice = await NiceModal.show('InvoiceForm', { initialInvoice: invoice });
+    if (updatedInvoice) {
+      try {
+        await updateAsync({ invoice: updatedInvoice, invoiceFileName: fileName });
+      } catch (error) {
+        console.error('Error updating invoice:', error);
+      }
+    }
+  }, [invoice, fileName, updateAsync]);
+
+  const handleCloneInvoice = useCallback(async () => {
+    if (!invoice) return;
+    
+    const newInvoiceRef = await NiceModal.show('CloneInvoiceDialog', { oldInvoice: invoice });
+    if (newInvoiceRef) {
+      // Merge old invoice with new invoiceRef and updated date
+      const newInvoice = {
+        ...invoice,
+        invoiceRef: newInvoiceRef,
+        date: dayjs().toISOString(),
+      };
+
+      try {
+        const result = await saveAsync({ invoice: newInvoice as any });
+        if (result?.addInvoice?.invoiceRef) {
+          // Refetch invoiceFiles to get the newly created invoice file
+          const { data: updatedData } = await refetchInvoiceFiles();
+          const createdInvoiceRef = result.addInvoice.invoiceRef;
+          const matchingInvoiceFile = updatedData?.invoiceFiles?.find(
+            (invoiceFile) => invoiceFile?.invoice.invoiceRef === createdInvoiceRef
+          );
+          if (matchingInvoiceFile?.fileName) {
+            push('/invoice?' + new URLSearchParams([['fileName', matchingInvoiceFile.fileName]]).toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error cloning invoice:', error);
+      }
+    }
+  }, [invoice, saveAsync, refetchInvoiceFiles, push]);
 
 
   const pdfLink = pdfData?.pdfOfInvoice?.length && `${config.staticContentURL}/${pdfData?.pdfOfInvoice}` || undefined
@@ -185,19 +241,28 @@ const Invoice: NextPage = () => {
               >
                 {title}
               </Typography>
-              <Button
-                  onClick={() => push('/invoiceCreate?' + (new URLSearchParams([['cloneInvoiceRef', invoice.invoiceRef || '']])).toString())}
-                  size="medium"
-                  variant="plain"
-                  sx={{ fontSize: 'xs', px: 1 }}>
-                 clone invoice
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                    onClick={handleEditInvoice}
+                    size="medium"
+                    variant="plain"
+                    sx={{ fontSize: 'xs', px: 1 }}>
+                  edit invoice
+                </Button>
+                <Button
+                    onClick={handleCloneInvoice}
+                    size="medium"
+                    variant="plain"
+                    sx={{ fontSize: 'xs', px: 1 }}>
+                  clone invoice
+                </Button>
+              </Box>
             </Box>
             <Typography
                 level={'body-md'}
                 textColor="text.secondary"
             >
-              {invoice.description.split('\n').map(t => (<>{t}<br /></>))}
+              {invoice.description.split('\n').map((t, index) => (<React.Fragment key={index}>{t}<br /></React.Fragment>))}
             </Typography>
 
             <Grid container
@@ -385,7 +450,6 @@ const Invoice: NextPage = () => {
             </Box>
           </Box>
         </Sheet>
-        
       </>
   )
 }

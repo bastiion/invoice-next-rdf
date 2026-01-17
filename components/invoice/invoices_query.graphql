@@ -5,6 +5,7 @@ query invoices {
         validUntil
         offerRef
         isOffer
+        clientRef
         subject
         description
         place

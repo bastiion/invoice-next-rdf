@@ -1,0 +1,5 @@
+mutation updateInvoice($invoice: InvoiceInput, $invoiceFileName: String!) {
+    updateInvoice(invoice: $invoice, invoiceFileName: $invoiceFileName) {
+        invoiceRef
+    }
+}

@@ -9,6 +9,7 @@ query invoiceFile($fileName: String!) {
             validUntil
             offerRef
             isOffer
+            clientRef
             subject
             description
             place

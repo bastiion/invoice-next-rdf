@@ -9,6 +9,7 @@ query invoiceFiles {
             validUntil
             offerRef
             isOffer
+            clientRef
             subject
             description
             place

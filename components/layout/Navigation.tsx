@@ -10,63 +10,210 @@ import ListItemContent from '@mui/joy/ListItemContent';
 
 // Icons import
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {createTheme} from "@mui/system";
-import {InvoiceList} from "../invoice/InvoiceList";
+import {InvoiceNavigationTree} from "../invoice/InvoiceNavigationTree";
 import {useRouter} from "next/router";
 import {AddBoxRounded} from "@mui/icons-material";
+import NiceModal from '@ebay/nice-modal-react';
+import { useAddInvoiceMutation, useInvoiceFilesQuery } from '../generated/graphql';
 
 const theme = createTheme()
 
+interface TogglerProps {
+  defaultExpanded?: boolean;
+  children: React.ReactNode;
+  renderToggle: (params: {
+    open: boolean;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  }) => React.ReactNode;
+}
+
+function Toggler({
+  defaultExpanded = false,
+  renderToggle,
+  children,
+}: TogglerProps) {
+  const [open, setOpen] = React.useState(defaultExpanded);
+  return (
+    <React.Fragment>
+      {renderToggle({ open, setOpen })}
+      <Box
+        sx={[
+          {
+            display: 'grid',
+            transition: '0.2s ease',
+            '& > *': {
+              overflow: 'hidden',
+            },
+          },
+          open ? { gridTemplateRows: '1fr' } : { gridTemplateRows: '0fr' },
+        ]}
+      >
+        {children}
+      </Box>
+    </React.Fragment>
+  );
+}
+
 export default function Navigation() {
   const { push } = useRouter()
+  const { mutateAsync: addInvoiceAsync } = useAddInvoiceMutation()
+  const { refetch: refetchInvoiceFiles } = useInvoiceFilesQuery()
+
+  const handleCreateInvoice = React.useCallback(async () => {
+    const newInvoice = await NiceModal.show('InvoiceForm', {});
+    if (newInvoice) {
+      try {
+        const result = await addInvoiceAsync({ invoice: newInvoice });
+        if (result?.addInvoice?.invoiceRef) {
+          // Refetch invoiceFiles to get the newly created invoice file
+          const { data: updatedData } = await refetchInvoiceFiles();
+          const invoiceRef = result.addInvoice.invoiceRef;
+          const matchingInvoiceFile = updatedData?.invoiceFiles?.find(
+            (invoiceFile) => invoiceFile?.invoice.invoiceRef === invoiceRef
+          );
+          if (matchingInvoiceFile?.fileName) {
+            push('/invoice?' + new URLSearchParams([['fileName', matchingInvoiceFile.fileName]]).toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error creating invoice:', error);
+      }
+    }
+  }, [addInvoiceAsync, refetchInvoiceFiles, push]);
   return (
       <List size="sm" sx={{ '--List-item-radius': '8px' }}>
         <ListItem nested sx={{ p: 0 }}>
-          <Box
-              sx={{
-                mb: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-          >
-            <Typography
-                id="nav-list-browse"
-                textColor="neutral.500"
-                fontWeight={700}
+          <Toggler
+            defaultExpanded
+            renderToggle={({ open, setOpen }) => (
+              <Box
                 sx={{
-                  fontSize: '10px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '.1rem',
+                  mb: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
                 }}
-            >
-              Invoices
-            </Typography>
-            <IconButton
-                size="sm"
-                variant="plain"
-                sx={{ '--IconButton-size': '24px' }}
-                onClick={() => push('/invoiceCreate')}
-            >
-              <AddBoxRounded fontSize="small" color="primary" />
-            </IconButton>
-            <IconButton
-                size="sm"
-                variant="plain"
-                color="primary"
-                sx={{ '--IconButton-size': '24px' }}
-            >
-              <KeyboardArrowDownRoundedIcon fontSize="small" color="primary" />
-            </IconButton>
-          </Box>
-          <List
-              aria-labelledby="nav-list-browse"
-              sx={{
-                '& .JoyListItemButton-root': { p: '8px' },
-              }}
+                onClick={() => setOpen(!open)}
+              >
+                <Typography
+                  id="nav-list-browse-buyer"
+                  textColor="neutral.500"
+                  fontWeight={700}
+                  sx={{
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '.1rem',
+                  }}
+                >
+                  Invoices by Buyer
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    sx={{ '--IconButton-size': '24px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCreateInvoice();
+                    }}
+                  >
+                    <AddBoxRounded fontSize="small" color="primary" />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    color="primary"
+                    sx={{ '--IconButton-size': '24px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(!open);
+                    }}
+                  >
+                    <KeyboardArrowDownIcon
+                      fontSize="small"
+                      color="primary"
+                      sx={[
+                        open
+                          ? { transform: 'rotate(180deg)' }
+                          : { transform: 'none' },
+                      ]}
+                    />
+                  </IconButton>
+                </Box>
+              </Box>
+            )}
           >
-            <InvoiceList />
-          </List>
+            <InvoiceNavigationTree groupedBy="buyer" />
+          </Toggler>
+        </ListItem>
+
+        <ListItem nested sx={{ p: 0 }}>
+          <Toggler
+            defaultExpanded
+            renderToggle={({ open, setOpen }) => (
+              <Box
+                sx={{
+                  mb: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setOpen(!open)}
+              >
+                <Typography
+                  id="nav-list-browse-seller"
+                  textColor="neutral.500"
+                  fontWeight={700}
+                  sx={{
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '.1rem',
+                  }}
+                >
+                  Invoices by Seller
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    sx={{ '--IconButton-size': '24px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCreateInvoice();
+                    }}
+                  >
+                    <AddBoxRounded fontSize="small" color="primary" />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    color="primary"
+                    sx={{ '--IconButton-size': '24px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(!open);
+                    }}
+                  >
+                    <KeyboardArrowDownIcon
+                      fontSize="small"
+                      color="primary"
+                      sx={[
+                        open
+                          ? { transform: 'rotate(180deg)' }
+                          : { transform: 'none' },
+                      ]}
+                    />
+                  </IconButton>
+                </Box>
+              </Box>
+            )}
+          >
+            <InvoiceNavigationTree groupedBy="seller" />
+          </Toggler>
         </ListItem>
         <ListItem nested>
           <Box

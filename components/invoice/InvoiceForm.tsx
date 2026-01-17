@@ -1,111 +1,73 @@
 import {JsonSchema} from "@jsonforms/core"
 import {materialCells, materialRenderers} from "@jsonforms/material-renderers"
 import {JsonForms} from "@jsonforms/react"
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import schemaWithRefs from './invoice.json'
-import JsonRefs from 'json-refs';
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton} from "@mui/material";
 import {ThemeProvider} from "@mui/system";
 import {createTheme} from "@mui/material/styles";
-import {useRouter} from "next/router";
-import {InvoiceInput, useAddInvoiceMutation, useInvoiceQuery, useInvoiceFilesQuery} from "../generated/graphql";
+import {InvoiceInput} from "../generated/graphql";
 import {invoiceUISchema} from "./invoiceUISchema";
 import {Close} from "@mui/icons-material";
-import {useQueryClient} from "react-query";
+import NiceModal, {useModal} from "@ebay/nice-modal-react";
 
 const theme = createTheme()
 
-export const resolveInvoiceSchema = async () =>
-    await JsonRefs.resolveRefs(schemaWithRefs).then(res => {
-      return res.resolved;
-    })
-
 const defaultRenderers = [
-  ...materialRenderers]
-const InvoiceForm = () => {
-  const { query, push, back } = useRouter()
-  const cloneInvoiceRef = query.cloneInvoiceRef as string
-  const enabled = Boolean(cloneInvoiceRef)
-  const { data: initialData } = useInvoiceQuery({ invoiceRef: cloneInvoiceRef }, { enabled })
-  const [data, setData] = useState<any>(initialData?.invoice)
-  const [open, setOpen] = useState(false);
-  const [resolvedSchema, setResolvedSchema] = useState<JsonSchema | undefined>()
-  const { pathname } = useRouter()
-  const queryClient = useQueryClient()
-  const { mutateAsync: saveAsync } = useAddInvoiceMutation({
-    onSuccess: () => {
-      // Invalidate invoiceFiles to refetch the updated list
-      queryClient.invalidateQueries(['invoiceFiles'])
-    }
-  })
-  const { data: invoiceFilesData, refetch: refetchInvoiceFiles } = useInvoiceFilesQuery()
-  const [initialDataSet, setInitialDataSet] = useState(false);
-  const [pendingInvoiceRef, setPendingInvoiceRef] = useState<string | null>(null);
+  ...materialRenderers
+]
 
-  const handleClose = useCallback(() => back(), [back] )
-  const handleSave = useCallback(async () => {
-    const newInvoice = await saveAsync({ invoice: data as InvoiceInput})
-    if (newInvoice?.addInvoice?.invoiceRef) {
-      // Refetch invoiceFiles to get the newly created invoice file
-      const { data: updatedData } = await refetchInvoiceFiles()
-      const invoiceRef = newInvoice.addInvoice.invoiceRef
-      const matchingInvoiceFile = updatedData?.invoiceFiles?.find(
-        invoiceFile => invoiceFile?.invoice.invoiceRef === invoiceRef
-      )
-      if (matchingInvoiceFile?.fileName) {
-        push('/invoice?' + (new URLSearchParams([['fileName', matchingInvoiceFile.fileName]])))
-      } else {
-        // Fallback: set pending and wait for data to update
-        setPendingInvoiceRef(newInvoice.addInvoice.invoiceRef)
-      }
-    }
-  }, [data, saveAsync, push, refetchInvoiceFiles] )
+interface InvoiceFormProps {
+  initialInvoice?: InvoiceInput;
+}
 
-  // Watch for when the invoice appears in the list after save
-  useEffect(() => {
-    if (pendingInvoiceRef && invoiceFilesData?.invoiceFiles) {
-      const matchingInvoiceFile = invoiceFilesData.invoiceFiles.find(
-        invoiceFile => invoiceFile?.invoice.invoiceRef === pendingInvoiceRef
-      )
-      if (matchingInvoiceFile?.fileName) {
-        setPendingInvoiceRef(null)
-        push('/invoice?' + (new URLSearchParams([['fileName', matchingInvoiceFile.fileName]])))
-      }
-    }
-  }, [pendingInvoiceRef, invoiceFilesData, push])
+const clearNullOrEmpty = (input: any): any => {
+  if (Array.isArray(input)) {
+    // Recursively clean each element in the array
+    const cleaned = input
+      .map(clearNullOrEmpty)
+      .filter((item) => item !== undefined && item !== null);
+    return cleaned.length > 0 ? cleaned : undefined;
+  } else if (input !== null && typeof input === 'object') {
+    // Recursively clean object fields
+    const entries = Object.entries(input)
+      .map(([key, value]) => [key, clearNullOrEmpty(value)])
+      .filter(([_, value]) => value !== undefined && value !== null);
+    if (entries.length === 0) return undefined;
+    return Object.fromEntries(entries);
+  }
+  // Return value only if not undefined and not null
+  return input !== undefined && input !== null ? input : undefined;
+};
 
-  useEffect(() => {
-    setInitialDataSet(false)
-  }, [open]);
 
-  useEffect(() => {
-    if(!initialDataSet ) {
-      if(!cloneInvoiceRef) {
-        setInitialDataSet(true)
-        setData({})
-      } else if(initialData) {
-        setInitialDataSet(true)
-        setData(initialData?.invoice)
-      }
-    }
-  }, [initialData, cloneInvoiceRef, initialDataSet, setData, setInitialDataSet]);
+const InvoiceForm = NiceModal.create<InvoiceFormProps>(({ initialInvoice }) => {
+  const modal = useModal();
+  const [data, setData] = useState<any>(initialInvoice || {});
 
-  useEffect(() => {
-    (pathname === '/invoiceCreate') ? setOpen(true) : setOpen(false)
-  }, [pathname, setOpen]);
+  const handleClose = useCallback(() => {
+    modal.resolve(null);
+    modal.hide();
+  }, [modal]);
 
-  useEffect(() => {
-    resolveInvoiceSchema().then(res => {
-      setResolvedSchema(res);
-    })
-  }, []);
+  const handleSave = useCallback(() => {
+    modal.resolve(data as InvoiceInput);
+    modal.hide();
+  }, [data, modal]);
 
-  const schema = resolvedSchema?.definitions?.Invoice as JsonSchema
-  const uischema = invoiceUISchema(schema)
-  console.log(uischema)
+  const schema = useMemo<JsonSchema>(() => ({
+    ...schemaWithRefs?.definitions?.Invoice,
+    // @ts-ignore
+    definitions: schemaWithRefs?.definitions as Record<string, JsonSchema>
+  }), [schemaWithRefs])
+
+  const handleDataChange = useCallback(({data}) => setData(data), [setData])
+  
+  const uischema = useMemo(() => invoiceUISchema(schema), [schema])
+  
   return <ThemeProvider theme={theme}>
-    <Dialog open={open} onClose={handleClose} maxWidth={'lg'} fullWidth>
-      <DialogTitle>Create Invoice
+    <Dialog open={modal.visible} onClose={handleClose} maxWidth={'lg'} fullWidth>
+      <DialogTitle>{initialInvoice ? 'Edit Invoice' : 'Create Invoice'}
         <IconButton
             aria-label="close"
             onClick={handleClose}
@@ -121,7 +83,7 @@ const InvoiceForm = () => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Create an invoice using the following form or alternatively by cloning an existing invoice
+          Edit or create an invoice using the following form.
         </DialogContentText>
         <JsonForms
             schema={schema}
@@ -129,7 +91,7 @@ const InvoiceForm = () => {
             data={data}
             renderers={defaultRenderers}
             cells={materialCells}
-            onChange={initialDataSet ? ({data}) => setData(data) : () => {}}
+            onChange={handleDataChange}
         />
       </DialogContent>
       <DialogActions>
@@ -138,6 +100,6 @@ const InvoiceForm = () => {
       </DialogActions>
     </Dialog>
   </ThemeProvider>
-}
+});
 
 export default InvoiceForm

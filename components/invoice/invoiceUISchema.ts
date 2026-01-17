@@ -6,13 +6,14 @@ import {JsonSchema} from "@jsonforms/core";
 
 export type UISchemaOverrides = (scopeFn: ScopeFn, schema: JsonSchema) => (UISchemaElement & Scopable)[]
 export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
-  { type: 'ListWithDetail',
+  { type: 'Control',
     scope: scopeFn('tradeItems'),
     options: {
-      elementLabelProp: ['title', 'amount'],
+      elementLabelProp: 'title',
+      showSortButtons: true,
       detail: {
         type: 'VerticalLayout',
-        elements: overrideScopes([], jsonSchema2UISchemaElements((schema as any)?.properties?.tradeItems?.items))
+        elements: overrideScopes([], jsonSchema2UISchemaElements((schema as any)?.definitions?.TradeItem))
       }
     }
   },{
@@ -23,34 +24,44 @@ export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
     }
   },
   {
-    type: 'Group',
-    label: 'Buyer',
-    scope: scopeFn('buyer'),
-    elements: overrideScopes([{
-      type: 'Control',
-      scope: scopeFn('buyer/properties/address'),
-      options: {
-        multi: true
-      }
-    }], jsonSchema2UISchemaElements((schema as any)?.properties?.buyer, 'buyer/properties/'))
-  },{
-    type: 'Group',
-    label: 'Seller',
+    type: 'Control',
     scope: scopeFn('seller'),
-    elements: overrideScopes([{
-        type: 'Control',
-        scope: scopeFn('seller/properties/address'),
-        options: {
-          multi: true
-        }
-    }], jsonSchema2UISchemaElements((schema as any)?.properties?.seller, 'seller/properties/'))
+    options: {
+      detail: {
+        type: 'Group',
+        label: 'Verkäufer',
+        elements: overrideScopes([{
+          type: 'Control',
+          scope: scopeFn('address'),
+          options: {
+            multi: true
+          }
+        }], jsonSchema2UISchemaElements((schema as any)?.definitions?.Seller))
+      }
+    }
+  },
+  {
+    type: 'Control',
+    scope: scopeFn('buyer'),
+    options: {
+      detail: {
+        type: 'Group',
+        label: 'Käufer',
+        elements: overrideScopes([{
+          type: 'Control',
+          scope: scopeFn('address'),
+          options: {
+            multi: true
+          }
+        }], jsonSchema2UISchemaElements((schema as any)?.definitions?.Buyer))
+      }
+    }
   }
 ]
 const scope = (s: string) => `#/properties/${s}`
 export const invoiceUISchema: (schema?: JsonSchema) => VerticalLayout = (schema) => {
   // @ts-ignore
   //const schema = (await resolveInvoiceSchema())?.definitions?.Invoice
-  console.log(schema)
   return ({
     type: 'VerticalLayout',
     elements: !schema ? [] : overrideScopes(applicationUIOverrides(scope, schema),
