@@ -1,0 +1,343 @@
+{
+  "HomePage": {
+    "metadata": {
+      "title": "Übersicht",
+      "description": "Rechnungs- und Auftragsverwaltung"
+    },
+    "headline": "Übersicht",
+    "intro": "Wähle eine Rechnung aus oder erstelle eine neue."
+  },
+  "InvoicesPage": {
+    "metadata": {
+      "title": "Rechnungen",
+      "description": "Rechnungs- und Auftragsverwaltung"
+    },
+    "headline": "Rechnungen"
+  },
+  "InvoiceCreatePage": {
+    "metadata": {
+      "title": "Rechnung erstellen",
+      "description": "Rechnungs- und Auftragsverwaltung"
+    },
+    "info": "Die Rechnungserstellung erfolgt über den Dialog."
+  },
+  "InvoicePage": {
+    "metadata": {
+      "title": "Rechnung",
+      "description": "Rechnungs- und Auftragsverwaltung"
+    },
+    "invoiceTitle": "Rechnung: {subject}",
+    "invoiceTitleFallback": "Rechnung",
+    "technicalTable": "Technische Tabelle",
+    "tradeTable": {
+      "headers": {
+        "title": "Titel",
+        "description": "Beschreibung",
+        "amount": "Menge",
+        "unit": "Einheit",
+        "netPricePerItem": "Nettopreis pro Artikel"
+      }
+    },
+    "pdfPreviewAlt": "Rechnungs-PDF-Vorschau",
+    "templateSelection": "Vorlage auswählen",
+    "enableZugferd": "ZUGFeRD aktivieren",
+    "details": {
+      "title": "Rechnungsdetails",
+      "place": "Ort",
+      "owner": "Inhaber"
+    },
+    "financial": {
+      "title": "Finanzübersicht",
+      "netPrice": "Nettopreis",
+      "total": "Gesamt",
+      "taxes": "Steuern"
+    },
+    "actions": {
+      "title": "Aktionen",
+      "editInvoice": "Rechnung bearbeiten",
+      "cloneInvoice": "Rechnung klonen",
+      "viewPdf": "PDF anzeigen",
+      "renderPdf": "PDF erzeugen",
+      "saveChanges": "Änderungen speichern",
+      "removeInvoice": "Rechnung entfernen"
+    },
+    "removeDialog": {
+      "title": "Rechnung entfernen",
+      "message": "Möchtest du diese Rechnung wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Entfernen",
+      "cancel": "Abbrechen"
+    }
+  },
+  "Navigation": {
+    "invoicesByBuyer": "Rechnungen nach Käufer",
+    "invoicesBySeller": "Rechnungen nach Verkäufer",
+    "tags": {
+      "title": "Tags",
+      "personal": "Privat",
+      "work": "Arbeit",
+      "offer": "Angebot",
+      "drafts": "Entwürfe"
+    }
+  },
+  "Sidebar": {
+    "productTitle": "Graviola - Business Ontology",
+    "appsLabel": "Apps",
+    "menu": {
+      "email": "E-Mail",
+      "team": "Team",
+      "files": "Dateien"
+    }
+  },
+  "Auth": {
+    "userFallback": "Benutzer",
+    "login": "Anmelden",
+    "logIn": "Anmelden",
+    "manageAccount": "Konto verwalten",
+    "logout": "Abmelden"
+  },
+  "InvoiceSearch": {
+    "placeholder": "Alles durchsuchen...",
+    "matchedIn": "Gefunden in: {fields}",
+    "fields": {
+      "buyerName": "Käufer",
+      "buyerAddress": "Käuferadresse",
+      "sellerName": "Verkäufer",
+      "sellerAddress": "Verkäuferadresse",
+      "subject": "Betreff",
+      "description": "Beschreibung",
+      "date": "Datum",
+      "invoiceRef": "Rechnungsnr.",
+      "fileName": "Dateiname",
+      "itemTitle": "Titel",
+      "itemDescription": "Beschreibung",
+      "itemWithIndex": "Posten {index} {type}"
+    }
+  },
+  "CloneInvoiceDialog": {
+    "title": "Rechnung klonen",
+    "schemaLabel": "Rechnungsnummer-Schema",
+    "defaultTag": "(Standard)",
+    "invoiceRefLabel": "Rechnungsnummer",
+    "invoiceRefHelper": "Überprüfe oder bearbeite die generierte Rechnungsnummer",
+    "currentSchema": "Aktuelles Schema:",
+    "cancel": "Abbrechen",
+    "confirm": "OK"
+  },
+  "TradeItemDataGrid": {
+    "columns": {
+      "optional": "Optional",
+      "amount": "Menge",
+      "netPricePerItem": "Preis/Artikel",
+      "title": "Titel",
+      "description": "Beschreibung",
+      "netPrice": "Nettopreis"
+    }
+  },
+  "TemplateSelect": {
+    "placeholder": "Vorlage auswählen"
+  },
+  "JsonForms": {
+    "buyer": {
+      "label": "Käufer",
+      "description": "Angaben zum Käufer",
+      "address": {
+        "label": "Adresse",
+        "description": "Adresse des Käufers"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Name des Käufers"
+      }
+    },
+    "currency": {
+      "label": "Währung",
+      "description": "Rechnungswährung"
+    },
+    "subject": {
+      "label": "Betreff",
+      "description": "Rechnungsbetreff"
+    },
+    "description": {
+      "label": "Beschreibung",
+      "description": "Rechnungsbeschreibung"
+    },
+    "greeting": {
+      "label": "Grußformel",
+      "description": "Grußtext"
+    },
+    "invoiceRef": {
+      "label": "Rechnungsnummer",
+      "description": "Rechnungsnummer"
+    },
+    "place": {
+      "label": "Ort",
+      "description": "Ausstellungsort"
+    },
+    "seller": {
+      "label": "Verkäufer",
+      "description": "Angaben zum Verkäufer",
+      "address": {
+        "label": "Adresse",
+        "description": "Adresse des Verkäufers"
+      },
+      "bank": {
+        "label": "Bank",
+        "description": "Bankverbindung",
+        "bic": {
+          "label": "BIC",
+          "description": "Bank Identifier Code"
+        },
+        "iban": {
+          "label": "IBAN",
+          "description": "Internationale Kontonummer"
+        },
+        "name": {
+          "label": "Bankname",
+          "description": "Name der Bank"
+        }
+      },
+      "email": {
+        "label": "E-Mail",
+        "description": "E-Mail des Verkäufers"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Name des Verkäufers"
+      },
+      "taxInfo": {
+        "label": "Steuerangaben",
+        "description": "Steuerliche Angaben des Verkäufers",
+        "ustid": {
+          "label": "USt-IdNr.",
+          "description": "Umsatzsteuer-Identifikationsnummer"
+        }
+      }
+    },
+    "Bank": "Bank",
+    "tradeItemsDescription": "Rechnungspositionen",
+    "tradeItems": {
+      "label": "Positionen",
+      "addTooltip": "Position hinzufügen",
+      "addAriaLabel": "Position hinzufügen",
+      "removeTooltip": "Löschen",
+      "removeAriaLabel": "Löschen",
+      "upAriaLabel": "Eintrag nach oben",
+      "up": "Hoch",
+      "down": "Runter",
+      "downAriaLabel": "Eintrag nach unten",
+      "noDataMessage": "Keine Daten",
+      "noSelection": "Keine Auswahl",
+      "deleteDialogTitle": "Löschen bestätigen",
+      "deleteDialogMessage": "Möchtest du den ausgewählten Eintrag wirklich löschen?",
+      "deleteDialogAccept": "Ja",
+      "deleteDialogDecline": "Nein",
+      "optional": {
+        "label": "Optional",
+        "description": "Optionale Position",
+        "error": {
+          "custom": "Ungültiger Wert"
+        }
+      },
+      "amount": {
+        "label": "Menge",
+        "description": "Positionsmenge"
+      },
+      "title": {
+        "label": "Titel",
+        "description": "Positionstitel"
+      },
+      "description": {
+        "label": "Beschreibung",
+        "description": "Positionsbeschreibung"
+      },
+      "netPricePerItem": {
+        "label": "Nettopreis je Einheit",
+        "description": "Nettopreis je Einheit"
+      },
+      "unit": {
+        "label": "Einheit",
+        "description": "Maßeinheit"
+      },
+      "taxes": {
+        "label": "Steuern",
+        "description": "Steuerangaben",
+        "error": {
+          "custom": "Ungültige Steuerangabe"
+        },
+        "vat": {
+          "label": "USt.",
+          "description": "Umsatzsteuer",
+          "id": {
+            "label": "Steuerkennung",
+            "description": "Steuerkennung",
+            "vat": "vat"
+          },
+          "abbreviation": {
+            "label": "Abkürzung",
+            "description": "Steuerabkürzung"
+          },
+          "name": {
+            "label": "Name",
+            "description": "Steuername"
+          },
+          "rate": {
+            "label": "Satz",
+            "description": "Steuersatz"
+          }
+        }
+      }
+    },
+    "TradeItem_taxes": "Steuern der Position",
+    "discounts": {
+      "label": "Rabatte",
+      "description": "Rechnungsrabatte",
+      "error": {
+        "custom": "Ungültiger Rabatt"
+      },
+      "addTooltip": "Rabatt hinzufügen",
+      "addAriaLabel": "Rabatt hinzufügen",
+      "removeTooltip": "Löschen",
+      "removeAriaLabel": "Löschen",
+      "upAriaLabel": "Eintrag nach oben",
+      "up": "Hoch",
+      "down": "Runter",
+      "downAriaLabel": "Eintrag nach unten",
+      "noDataMessage": "Keine Daten",
+      "noSelection": "Keine Auswahl",
+      "deleteDialogTitle": "Löschen bestätigen",
+      "deleteDialogMessage": "Möchtest du den ausgewählten Eintrag wirklich löschen?",
+      "deleteDialogAccept": "Ja",
+      "deleteDialogDecline": "Nein"
+    },
+    "sconto": {
+      "label": "Skonto",
+      "description": "Skonto-Posten",
+      "error": {
+        "custom": "Ungültiger Skonto"
+      },
+      "addTooltip": "Skonto hinzufügen",
+      "addAriaLabel": "Skonto hinzufügen",
+      "removeTooltip": "Löschen",
+      "removeAriaLabel": "Löschen",
+      "upAriaLabel": "Eintrag nach oben",
+      "up": "Hoch",
+      "down": "Runter",
+      "downAriaLabel": "Eintrag nach unten",
+      "noDataMessage": "Keine Daten",
+      "noSelection": "Keine Auswahl",
+      "deleteDialogTitle": "Löschen bestätigen",
+      "deleteDialogMessage": "Möchtest du den ausgewählten Eintrag wirklich löschen?",
+      "deleteDialogAccept": "Ja",
+      "deleteDialogDecline": "Nein"
+    },
+    "root": {
+      "error": {
+        "custom": "Ungültiger Wert"
+      }
+    }
+  },
+  "ConfirmationDialog": {
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen"
+  }
+}

@@ -1,7 +1,10 @@
+'use client';
+
 import { PropsWithChildren, useCallback } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Box, Button } from '@mui/joy';
 import { useAuth } from './AuthContext';
+import {useTranslations} from 'next-intl';
 
 /**
  * Check if authentication is enabled (static at build time)
@@ -15,21 +18,25 @@ const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false';
  * Blocks access to the rest of the application until login.
  */
 export function LoginTrap({ children }: PropsWithChildren) {
+  const t = useTranslations('Auth');
   // Always call hooks unconditionally (before any early returns)
   const auth = useAuth();
-  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   
   // Handle login with path persistence (always define, even if not used)
   const handleLogin = useCallback(() => {
     // Store current location (pathname + query params) for redirect after login
-    const currentPath = router.asPath;
+    const currentPath = searchParams?.toString()
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('preLoginPath', currentPath);
     }
     
     // Initiate OIDC sign in
     auth.signinRedirect();
-  }, [auth, router]);
+  }, [auth, pathname, searchParams]);
   
   // If auth is disabled, show children directly
   if (!AUTH_ENABLED) {
@@ -69,7 +76,7 @@ export function LoginTrap({ children }: PropsWithChildren) {
             fontSize: '1.1rem',
           }}
         >
-          Log In
+          {t('logIn')}
         </Button>
       </Box>
     );

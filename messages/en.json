@@ -1,0 +1,343 @@
+{
+  "HomePage": {
+    "metadata": {
+      "title": "Dashboard",
+      "description": "Invoice and order management"
+    },
+    "headline": "Dashboard",
+    "intro": "Select an invoice or create a new one."
+  },
+  "InvoicesPage": {
+    "metadata": {
+      "title": "Invoices",
+      "description": "Invoice and order management"
+    },
+    "headline": "Invoices"
+  },
+  "InvoiceCreatePage": {
+    "metadata": {
+      "title": "Create Invoice",
+      "description": "Invoice and order management"
+    },
+    "info": "Invoice creation is handled via the modal dialog."
+  },
+  "InvoicePage": {
+    "metadata": {
+      "title": "Invoice",
+      "description": "Invoice and order management"
+    },
+    "invoiceTitle": "Invoice: {subject}",
+    "invoiceTitleFallback": "Invoice",
+    "technicalTable": "Technical Table",
+    "tradeTable": {
+      "headers": {
+        "title": "Title",
+        "description": "Description",
+        "amount": "Amount",
+        "unit": "Unit",
+        "netPricePerItem": "Net price per item"
+      }
+    },
+    "pdfPreviewAlt": "Invoice PDF preview",
+    "templateSelection": "Template Selection",
+    "enableZugferd": "Enable ZUGFeRD",
+    "details": {
+      "title": "Invoice Details",
+      "place": "Place",
+      "owner": "Owner"
+    },
+    "financial": {
+      "title": "Financial Summary",
+      "netPrice": "Net Price",
+      "total": "Total",
+      "taxes": "Taxes"
+    },
+    "actions": {
+      "title": "Actions",
+      "editInvoice": "Edit invoice",
+      "cloneInvoice": "Clone invoice",
+      "viewPdf": "View PDF",
+      "renderPdf": "Render PDF",
+      "saveChanges": "Save changes",
+      "removeInvoice": "Remove invoice"
+    },
+    "removeDialog": {
+      "title": "Remove Invoice",
+      "message": "Are you sure you want to remove this invoice? This action cannot be undone.",
+      "confirm": "Remove",
+      "cancel": "Cancel"
+    }
+  },
+  "Navigation": {
+    "invoicesByBuyer": "Invoices by Buyer",
+    "invoicesBySeller": "Invoices by Seller",
+    "tags": {
+      "title": "Tags",
+      "personal": "Personal",
+      "work": "Work",
+      "offer": "Offer",
+      "drafts": "Drafts"
+    }
+  },
+  "Sidebar": {
+    "productTitle": "Graviola - Business Ontology",
+    "appsLabel": "Apps",
+    "menu": {
+      "email": "Email",
+      "team": "Team",
+      "files": "Files"
+    }
+  },
+  "Auth": {
+    "userFallback": "User",
+    "login": "Login",
+    "logIn": "Log in",
+    "manageAccount": "Manage account",
+    "logout": "Logout"
+  },
+  "InvoiceSearch": {
+    "placeholder": "Search anything...",
+    "matchedIn": "Matched in: {fields}",
+    "fields": {
+      "buyerName": "Buyer",
+      "buyerAddress": "Buyer Address",
+      "sellerName": "Seller",
+      "sellerAddress": "Seller Address",
+      "subject": "Subject",
+      "description": "Description",
+      "date": "Date",
+      "invoiceRef": "Invoice Ref",
+      "fileName": "File Name",
+      "itemTitle": "Title",
+      "itemDescription": "Description",
+      "itemWithIndex": "Item {index} {type}"
+    }
+  },
+  "CloneInvoiceDialog": {
+    "title": "Clone Invoice",
+    "schemaLabel": "InvoiceRef Schema",
+    "defaultTag": "(Default)",
+    "invoiceRefLabel": "Invoice Reference",
+    "invoiceRefHelper": "Review or edit the generated invoice reference",
+    "currentSchema": "Current Schema:",
+    "cancel": "Cancel",
+    "confirm": "OK"
+  },
+  "TradeItemDataGrid": {
+    "columns": {
+      "optional": "Optional",
+      "amount": "Amount",
+      "netPricePerItem": "Price/item",
+      "title": "Title",
+      "description": "Description",
+      "netPrice": "Net price"
+    }
+  },
+  "TemplateSelect": {
+    "placeholder": "Select template"
+  },
+  "JsonForms": {
+    "buyer": {
+      "label": "Buyer",
+      "description": "Buyer information",
+      "address": {
+        "label": "Address",
+        "description": "Buyer address"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Buyer name"
+      }
+    },
+    "currency": {
+      "label": "Currency",
+      "description": "Invoice currency"
+    },
+    "subject": {
+      "label": "Subject",
+      "description": "Invoice subject"
+    },
+    "description": {
+      "label": "Description",
+      "description": "Invoice description"
+    },
+    "greeting": {
+      "label": "Greeting",
+      "description": "Greeting text"
+    },
+    "invoiceRef": {
+      "label": "Invoice reference",
+      "description": "Invoice reference"
+    },
+    "place": {
+      "label": "Place",
+      "description": "Place of issue"
+    },
+    "seller": {
+      "label": "Seller",
+      "description": "Seller information",
+      "address": {
+        "label": "Address",
+        "description": "Seller address"
+      },
+      "bank": {
+        "label": "Bank",
+        "description": "Bank details",
+        "bic": {
+          "label": "BIC",
+          "description": "Bank identifier code"
+        },
+        "iban": {
+          "label": "IBAN",
+          "description": "International bank account number"
+        },
+        "name": {
+          "label": "Bank name",
+          "description": "Name of the bank"
+        }
+      },
+      "email": {
+        "label": "Email",
+        "description": "Seller email address"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Seller name"
+      },
+      "taxInfo": {
+        "label": "Tax info",
+        "description": "Seller tax information",
+        "ustid": {
+          "label": "VAT ID",
+          "description": "VAT identification number"
+        }
+      }
+    },
+    "Bank": "Bank",
+    "tradeItemsDescription": "Invoice line items",
+    "tradeItems": {
+      "label": "Line items",
+      "addTooltip": "Add line item",
+      "addAriaLabel": "Add line item button",
+      "removeTooltip": "Delete",
+      "removeAriaLabel": "Delete button",
+      "upAriaLabel": "Move item up",
+      "up": "Up",
+      "down": "Down",
+      "downAriaLabel": "Move item down",
+      "noDataMessage": "No data",
+      "noSelection": "No selection",
+      "deleteDialogTitle": "Confirm deletion",
+      "deleteDialogMessage": "Are you sure you want to delete the selected entry?",
+      "deleteDialogAccept": "Yes",
+      "deleteDialogDecline": "No",
+      "optional": {
+        "label": "Optional",
+        "description": "Optional item",
+        "error": {
+          "custom": "Invalid value"
+        }
+      },
+      "amount": {
+        "label": "Amount",
+        "description": "Item amount"
+      },
+      "title": {
+        "label": "Title",
+        "description": "Item title"
+      },
+      "description": {
+        "label": "Description",
+        "description": "Item description"
+      },
+      "netPricePerItem": {
+        "label": "Net price per item",
+        "description": "Net price per item"
+      },
+      "unit": {
+        "label": "Unit",
+        "description": "Unit of measure"
+      },
+      "taxes": {
+        "label": "Taxes",
+        "description": "Tax details",
+        "error": {
+          "custom": "Invalid tax information"
+        },
+        "vat": {
+          "label": "VAT",
+          "description": "Value-added tax",
+          "id": {
+            "label": "Tax identifier",
+            "description": "Tax identifier",
+            "vat": "vat"
+          },
+          "abbreviation": {
+            "label": "Abbreviation",
+            "description": "Tax abbreviation"
+          },
+          "name": {
+            "label": "Name",
+            "description": "Tax name"
+          },
+          "rate": {
+            "label": "Rate",
+            "description": "Tax rate"
+          }
+        }
+      }
+    },
+    "TradeItem_taxes": "Trade item taxes",
+    "discounts": {
+      "label": "Discounts",
+      "description": "Invoice discounts",
+      "error": {
+        "custom": "Invalid discount"
+      },
+      "addTooltip": "Add discount",
+      "addAriaLabel": "Add discount button",
+      "removeTooltip": "Delete",
+      "removeAriaLabel": "Delete button",
+      "upAriaLabel": "Move item up",
+      "up": "Up",
+      "down": "Down",
+      "downAriaLabel": "Move item down",
+      "noDataMessage": "No data",
+      "noSelection": "No selection",
+      "deleteDialogTitle": "Confirm deletion",
+      "deleteDialogMessage": "Are you sure you want to delete the selected entry?",
+      "deleteDialogAccept": "Yes",
+      "deleteDialogDecline": "No"
+    },
+    "sconto": {
+      "label": "Cash discounts",
+      "description": "Cash discount entries",
+      "error": {
+        "custom": "Invalid discount"
+      },
+      "addTooltip": "Add cash discount",
+      "addAriaLabel": "Add cash discount button",
+      "removeTooltip": "Delete",
+      "removeAriaLabel": "Delete button",
+      "upAriaLabel": "Move item up",
+      "up": "Up",
+      "down": "Down",
+      "downAriaLabel": "Move item down",
+      "noDataMessage": "No data",
+      "noSelection": "No selection",
+      "deleteDialogTitle": "Confirm deletion",
+      "deleteDialogMessage": "Are you sure you want to delete the selected entry?",
+      "deleteDialogAccept": "Yes",
+      "deleteDialogDecline": "No"
+    },
+    "root": {
+      "error": {
+        "custom": "Invalid value"
+      }
+    }
+  },
+  "ConfirmationDialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
+}

@@ -29,7 +29,6 @@ export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
     options: {
       detail: {
         type: 'Group',
-        label: 'Verkäufer',
         elements: overrideScopes([{
           type: 'Control',
           scope: scopeFn('address'),
@@ -46,7 +45,6 @@ export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
     options: {
       detail: {
         type: 'Group',
-        label: 'Käufer',
         elements: overrideScopes([{
           type: 'Control',
           scope: scopeFn('address'),

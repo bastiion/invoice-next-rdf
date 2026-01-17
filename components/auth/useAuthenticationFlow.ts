@@ -1,5 +1,7 @@
+'use client';
+
 import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth, getAccountManagementUrl } from './AuthContext';
 
 /**
@@ -8,7 +10,8 @@ import { useAuth, getAccountManagementUrl } from './AuthContext';
  */
 export function useAuthenticationFlow() {
   const auth = useAuth();
-  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Memoize the account management URL since it depends on environment variables
   const accountManagementUrl = useMemo(() => getAccountManagementUrl(), []);
@@ -18,14 +21,16 @@ export function useAuthenticationFlow() {
    */
   const login = useCallback(() => {
     // Store current location (pathname + query params) for redirect after login
-    const currentPath = router.asPath;
+    const currentPath = searchParams?.toString()
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('preLoginPath', currentPath);
     }
     
     // Initiate OIDC sign in
     auth.signinRedirect();
-  }, [auth, router]);
+  }, [auth, pathname, searchParams]);
 
   /**
    * Initiates the logout flow

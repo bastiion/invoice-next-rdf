@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
@@ -17,6 +19,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 import { useAuthenticationFlow } from './useAuthenticationFlow';
+import {useTranslations} from 'next-intl';
 
 /**
  * Get user initials from user name
@@ -34,11 +37,11 @@ function getUserInitials(name?: string): string {
 /**
  * Get display name from user object
  */
-function getDisplayName(user: any): string {
+function getDisplayName(user: any): string | null {
   if (user?.profile?.name) return user.profile.name;
   if (user?.profile?.preferred_username) return user.profile.preferred_username;
   if (user?.profile?.email) return user.profile.email;
-  return 'User';
+  return null;
 }
 
 /**
@@ -48,6 +51,7 @@ function getDisplayName(user: any): string {
  * Hidden when authentication is disabled
  */
 export default function ProfileDropdown() {
+  const t = useTranslations('Auth');
   const {
     isAuthenticated,
     isLoading,
@@ -86,13 +90,13 @@ export default function ProfileDropdown() {
         startDecorator={<LoginIcon />}
         onClick={login}
       >
-        Login
+        {t('login')}
       </Button>
     );
   }
 
   // Get user information
-  const displayName = getDisplayName(user);
+  const displayName = getDisplayName(user) || t('userFallback');
   const userEmail = user?.profile?.email || '';
   const initials = getUserInitials(displayName);
 
@@ -152,7 +156,7 @@ export default function ProfileDropdown() {
               rel="noopener noreferrer"
             >
               <ManageAccountsIcon fontSize="small" sx={{ mr: 1 }} />
-              Manage Account
+              {t('manageAccount')}
             </MenuItem>
             <ListDivider />
           </>
@@ -161,7 +165,7 @@ export default function ProfileDropdown() {
         {/* Logout */}
         <MenuItem onClick={logout} color="danger">
           <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-          Logout
+          {t('logout')}
         </MenuItem>
       </Menu>
     </Dropdown>

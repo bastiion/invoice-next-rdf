@@ -1,5 +1,7 @@
+'use client';
+
 import { List } from "@mui/joy";
-import { useRouter } from "next/router";
+import { useRouter } from "../../i18n/navigation";
 import { useInvoiceFilesQuery } from "../generated/graphql";
 import ListItemButton from "@mui/joy/ListItemButton";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";

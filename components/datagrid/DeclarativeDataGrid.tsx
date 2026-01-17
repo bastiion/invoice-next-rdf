@@ -1,3 +1,5 @@
+'use client';
+
 import React, {ReactNode, useCallback, useEffect, useRef, useState} from 'react'
 
 import {CheckBoxOutlineBlank, CheckBox} from '@mui/icons-material'
@@ -44,6 +46,7 @@ const filterMappings = {
   number: NumberFilter,
   date: DateFilter,
 }
+const filterTypes = filterMappings
 const editorMappings = {
   boolean: BoolEditor
 }
@@ -191,6 +194,7 @@ const DeclarativeDataGrid = <T, >({
   return <DataGrid
     idProperty="id"
     filterable
+    filterTypes={filterTypes}
     onReady={(computedPropsRef) => gridRef.current = computedPropsRef.current}
     showColumnMenuFilterOptions={true}
     showFilteringMenuItems={true}

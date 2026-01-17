@@ -1,41 +1,30 @@
-import {Icon, Image, Menu, Segment, Sidebar} from "semantic-ui-react";
-import styles from "../../styles/Home.module.css";
+'use client';
+
 import theme from '../theme/theme'
 import React, {useState} from "react";
-import {useRouter} from "next/router";
 import {
-  Avatar,
-  AvatarGroup,
   Box,
-  Button,
   CssVarsProvider,
-  List,
-  ListDivider,
-  ListItem,
-  ListItemButton,
-  ListItemContent,
-  Sheet,
-  ThemeProvider,
+  Menu,
+  MenuButton,
+  MenuItem,
+  Dropdown,
   Typography,
 } from "@mui/joy"
 import type { Theme } from "@mui/joy/styles"
 import {GlobalStyles} from "@mui/system";
 import Layout from "./Layout";
 import Navigation from "./Navigation";
-import AspectRatio from "@mui/joy/AspectRatio";
-import CardCover from "@mui/joy/CardCover";
-import CardOverflow from "@mui/joy/CardOverflow";
-import Card from "@mui/joy/Card";
-import CardContent from "@mui/joy/CardContent";
-import { Close, EditOutlined, FindInPageRounded, FolderOpen, GridViewRounded, SearchRounded } from "@mui/icons-material";
+import { FindInPageRounded, GridViewRounded, SearchRounded, Menu as MenuIcon } from "@mui/icons-material";
 import IconButton from "@mui/joy/IconButton";
 import ProfileDropdown from "../auth/ProfileDropdown";
 import InvoiceSearchAutocomplete from "../search/InvoiceSearchAutocomplete";
+import {useTranslations} from 'next-intl';
 interface Props {
   children: JSX.Element[] | JSX.Element
 }
 export const SidebarVisible = ({children}: Props) => {
-  const router = useRouter()
+  const t = useTranslations('Sidebar');
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
       <CssVarsProvider theme={theme}>
@@ -80,7 +69,7 @@ export const SidebarVisible = ({children}: Props) => {
                   onClick={() => setDrawerOpen(true)}
                   sx={{ display: { sm: 'none' } }}
               >
-                <Menu />
+                <MenuIcon />
               </IconButton>
               <IconButton
                   size="sm"
@@ -89,7 +78,7 @@ export const SidebarVisible = ({children}: Props) => {
               >
                 <FindInPageRounded />
               </IconButton>
-              <Typography fontWeight={700}>Graviola - Business Ontology</Typography>
+              <Typography fontWeight={700}>{t('productTitle')}</Typography>
             </Box>
             <InvoiceSearchAutocomplete
                 sx={{
@@ -108,24 +97,21 @@ export const SidebarVisible = ({children}: Props) => {
               >
                 <SearchRounded />
               </IconButton>
-              <Menu
-                  id="app-selector"
-                  control={
-                    <IconButton
-                        size="sm"
-                        variant="outlined"
-                        color="primary"
-                        aria-label="Apps"
-                    >
-                      <GridViewRounded />
-                    </IconButton>
-                  }
-                  menus={[
-                    { label: 'Email', component: 'a', href: '/joy-ui/templates/email/' },
-                    { label: 'Team', component: 'a', href: '/joy-ui/templates/team/' },
-                    { label: 'Files', active: true },
-                  ]}
-              />
+              <Dropdown>
+                <MenuButton
+                  size="sm"
+                  variant="outlined"
+                  color="primary"
+                  aria-label={t('appsLabel')}
+                >
+                  <GridViewRounded />
+                </MenuButton>
+                <Menu placement="bottom-end">
+                  <MenuItem component="a" href="/">
+                    {t('menu.dashboard')}
+                  </MenuItem>
+                </Menu>
+              </Dropdown>
               <ProfileDropdown />
             </Box>
           </Layout.Header>

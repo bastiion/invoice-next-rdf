@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
@@ -9,7 +11,7 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
-import { useRouter } from 'next/router';
+import { useRouter } from '../../i18n/navigation';
 import { useInvoiceFilesQuery, InvoiceFilesQuery } from '../generated/graphql';
 import { filterUndefOrNull } from '../util/notEmpty';
 import dayjs from 'dayjs';

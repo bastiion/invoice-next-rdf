@@ -3,10 +3,20 @@ import {
   TypeSingleFilterValue,
 } from "@inovua/reactdatagrid-community/types";
 import filter from "@inovua/reactdatagrid-community/filter";
+import DateFilter from '@inovua/reactdatagrid-community/DateFilter';
+import StringFilter from '@inovua/reactdatagrid-community/StringFilter';
+import BoolFilter from '@inovua/reactdatagrid-community/BoolFilter';
+import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
 import moment from "moment";
 import { ColumnRaw } from "./columnRaw";
 
 const defaultDateFormat = "MM/DD/YYYY";
+const filterTypes = {
+  string: StringFilter,
+  boolean: BoolFilter,
+  number: NumberFilter,
+  date: DateFilter,
+};
 const extendedFilter: <T>(
   data: T[],
   filterValue: TypeSingleFilterValue[],
@@ -38,7 +48,7 @@ const extendedFilter: <T>(
       }
       return fV;
     }),
-    undefined,
+    filterTypes,
     columns
   ) as T[];
 };

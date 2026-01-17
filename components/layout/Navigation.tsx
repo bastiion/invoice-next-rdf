@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
@@ -11,14 +13,12 @@ import ListItemContent from '@mui/joy/ListItemContent';
 // Icons import
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import {createTheme} from "@mui/system";
 import {InvoiceNavigationTree} from "../invoice/InvoiceNavigationTree";
-import {useRouter} from "next/router";
 import {AddBoxRounded} from "@mui/icons-material";
 import NiceModal from '@ebay/nice-modal-react';
 import { useAddInvoiceMutation, useInvoiceFilesQuery } from '../generated/graphql';
-
-const theme = createTheme()
+import {useRouter} from '../../i18n/navigation';
+import {useTranslations} from 'next-intl';
 
 interface TogglerProps {
   defaultExpanded?: boolean;
@@ -57,6 +57,7 @@ function Toggler({
 }
 
 export default function Navigation() {
+  const t = useTranslations('Navigation');
   const { push } = useRouter()
   const { mutateAsync: addInvoiceAsync } = useAddInvoiceMutation()
   const { refetch: refetchInvoiceFiles } = useInvoiceFilesQuery()
@@ -108,7 +109,7 @@ export default function Navigation() {
                     letterSpacing: '.1rem',
                   }}
                 >
-                  Invoices by Buyer
+                  {t('invoicesByBuyer')}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <IconButton
@@ -174,7 +175,7 @@ export default function Navigation() {
                     letterSpacing: '.1rem',
                   }}
                 >
-                  Invoices by Seller
+                  {t('invoicesBySeller')}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <IconButton
@@ -235,7 +236,7 @@ export default function Navigation() {
                   letterSpacing: '.1rem',
                 }}
             >
-              Tags
+              {t('tags.title')}
             </Typography>
             <IconButton
                 size="sm"
@@ -266,7 +267,7 @@ export default function Navigation() {
                       }}
                   />
                 </ListItemDecorator>
-                <ListItemContent>Personal</ListItemContent>
+                <ListItemContent>{t('tags.personal')}</ListItemContent>
               </ListItemButton>
             </ListItem>
             <ListItem>
@@ -281,7 +282,7 @@ export default function Navigation() {
                       }}
                   />
                 </ListItemDecorator>
-                <ListItemContent>Work</ListItemContent>
+                <ListItemContent>{t('tags.work')}</ListItemContent>
               </ListItemButton>
             </ListItem>
             <ListItem>
@@ -296,7 +297,7 @@ export default function Navigation() {
                       }}
                   />
                 </ListItemDecorator>
-                <ListItemContent>Offer</ListItemContent>
+                <ListItemContent>{t('tags.offer')}</ListItemContent>
               </ListItemButton>
             </ListItem>
             <ListItem>
@@ -311,7 +312,7 @@ export default function Navigation() {
                       }}
                   />
                 </ListItemDecorator>
-                <ListItemContent>Drafts</ListItemContent>
+                <ListItemContent>{t('tags.drafts')}</ListItemContent>
               </ListItemButton>
             </ListItem>
           </List>

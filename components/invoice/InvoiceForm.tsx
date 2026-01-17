@@ -2,6 +2,7 @@ import {JsonSchema} from "@jsonforms/core"
 import {materialCells, materialRenderers} from "@jsonforms/material-renderers"
 import {JsonForms} from "@jsonforms/react"
 import {useCallback, useEffect, useMemo, useState} from "react";
+import {useTranslations} from 'next-intl';
 import schemaWithRefs from './invoice.json'
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton} from "@mui/material";
 import {ThemeProvider} from "@mui/system";
@@ -16,6 +17,24 @@ const theme = createTheme()
 const defaultRenderers = [
   ...materialRenderers
 ]
+
+// Global Set to track untranslated strings
+const untranslatedStrings: Map<string, string> = new Map();
+
+
+const createTranslator = (locale: string, t: ReturnType<typeof useTranslations>) =>
+  (key: string, defaultMessage?: string) => {
+    try {
+      const translated = t(key);
+      return translated;
+    } catch (error) {
+      const fallback = defaultMessage ?? key;
+      untranslatedStrings.set(key, fallback);
+      console.log(`Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`);
+      return fallback;
+    }
+  };
+
 
 interface InvoiceFormProps {
   initialInvoice?: InvoiceInput;
@@ -43,7 +62,10 @@ const clearNullOrEmpty = (input: any): any => {
 
 const InvoiceForm = NiceModal.create<InvoiceFormProps>(({ initialInvoice }) => {
   const modal = useModal();
+  const t = useTranslations('JsonForms');
   const [data, setData] = useState<any>(initialInvoice || {});
+  const [locale, setLocale] = useState<'de' | 'en'>('de');
+  const translation = useMemo(() => createTranslator(locale, t), [locale, t]);
 
   const handleClose = useCallback(() => {
     modal.resolve(null);
@@ -92,6 +114,7 @@ const InvoiceForm = NiceModal.create<InvoiceFormProps>(({ initialInvoice }) => {
             renderers={defaultRenderers}
             cells={materialCells}
             onChange={handleDataChange}
+            i18n={{locale: locale, translate: translation}}
         />
       </DialogContent>
       <DialogActions>

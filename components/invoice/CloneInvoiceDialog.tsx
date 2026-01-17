@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
@@ -22,6 +24,7 @@ import { Invoice } from '../generated/graphql';
 import { availableSchemas, getDefaultSchema } from './invoiceRefSchemas';
 import { buildInvoiceRef, describeSchema, IdBuilderSchema } from './invoiceRefSchema';
 import NiceModal, {useModal} from '@ebay/nice-modal-react';
+import {useTranslations} from 'next-intl';
 
 const theme = createTheme();
 
@@ -30,6 +33,7 @@ interface CloneInvoiceDialogProps {
 }
 
 export const CloneInvoiceDialog = NiceModal.create<CloneInvoiceDialogProps>(({ oldInvoice }) => {
+  const t = useTranslations('CloneInvoiceDialog');
   const modal = useModal();
   const [selectedSchemaId, setSelectedSchemaId] = useState<string>('default');
   const [invoiceRef, setInvoiceRef] = useState<string>('');
@@ -79,7 +83,7 @@ export const CloneInvoiceDialog = NiceModal.create<CloneInvoiceDialogProps>(({ o
     <ThemeProvider theme={theme}>
       <Dialog open={modal.visible} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>
-          Clone Invoice
+          {t('title')}
           <IconButton
             aria-label="close"
             onClick={handleClose}
@@ -96,40 +100,40 @@ export const CloneInvoiceDialog = NiceModal.create<CloneInvoiceDialogProps>(({ o
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
             <FormControl fullWidth>
-              <InputLabel id="schema-select-label">InvoiceRef Schema</InputLabel>
+              <InputLabel id="schema-select-label">{t('schemaLabel')}</InputLabel>
               <Select
                 labelId="schema-select-label"
                 value={selectedSchemaId}
-                label="InvoiceRef Schema"
+                label={t('schemaLabel')}
                 onChange={handleSchemaChange}
               >
                 {availableSchemas.map((schema) => (
                   <MenuItem key={schema.id} value={schema.id}>
-                    {schema.title} {schema.isDefault && '(Default)'}
+                    {schema.title} {schema.isDefault && t('defaultTag')}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <TextField
-              label="Invoice Reference"
+              label={t('invoiceRefLabel')}
               value={invoiceRef}
               onChange={handleInvoiceRefChange}
               fullWidth
-              helperText="Review or edit the generated invoice reference"
+              helperText={t('invoiceRefHelper')}
             />
 
             <Alert severity="info" sx={{ whiteSpace: 'pre-line' }}>
-              <strong>Current Schema:</strong>
+              <strong>{t('currentSchema')}</strong>
               {'\n'}
               {schemaDescription}
             </Alert>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>{t('cancel')}</Button>
           <Button onClick={handleConfirm} variant="contained" disabled={!invoiceRef.trim()}>
-            OK
+            {t('confirm')}
           </Button>
         </DialogActions>
       </Dialog>

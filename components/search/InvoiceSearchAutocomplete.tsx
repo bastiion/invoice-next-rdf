@@ -1,5 +1,6 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
 import Autocomplete from '@mui/joy/Autocomplete';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
 import { SearchRounded } from '@mui/icons-material';
@@ -8,12 +9,15 @@ import Typography from '@mui/joy/Typography';
 import Box from '@mui/joy/Box';
 import { SxProps } from '@mui/system';
 import { useInvoiceSearch, SearchResult } from './useInvoiceSearch';
+import {useRouter} from '../../i18n/navigation';
+import {useTranslations} from 'next-intl';
 
 interface InvoiceSearchAutocompleteProps {
   sx?: SxProps;
 }
 
 export default function InvoiceSearchAutocomplete({ sx }: InvoiceSearchAutocompleteProps) {
+  const t = useTranslations('InvoiceSearch');
   const router = useRouter();
   const { search, isLoading } = useInvoiceSearch();
   const [inputValue, setInputValue] = useState('');
@@ -83,21 +87,23 @@ export default function InvoiceSearchAutocomplete({ sx }: InvoiceSearchAutocompl
     
     // Format matched fields for display
     const formatFieldName = (fieldKey: string): string => {
-      if (fieldKey === 'buyer.name') return 'Buyer';
-      if (fieldKey === 'buyer.address') return 'Buyer Address';
-      if (fieldKey === 'seller.name') return 'Seller';
-      if (fieldKey === 'seller.address') return 'Seller Address';
-      if (fieldKey === 'subject') return 'Subject';
-      if (fieldKey === 'description') return 'Description';
-      if (fieldKey === 'date') return 'Date';
-      if (fieldKey === 'invoiceRef') return 'Invoice Ref';
-      if (fieldKey === 'fileName') return 'File Name';
+      if (fieldKey === 'buyer.name') return t('fields.buyerName');
+      if (fieldKey === 'buyer.address') return t('fields.buyerAddress');
+      if (fieldKey === 'seller.name') return t('fields.sellerName');
+      if (fieldKey === 'seller.address') return t('fields.sellerAddress');
+      if (fieldKey === 'subject') return t('fields.subject');
+      if (fieldKey === 'description') return t('fields.description');
+      if (fieldKey === 'date') return t('fields.date');
+      if (fieldKey === 'invoiceRef') return t('fields.invoiceRef');
+      if (fieldKey === 'fileName') return t('fields.fileName');
       if (fieldKey.startsWith('tradeItems[')) {
         const match = fieldKey.match(/tradeItems\[(\d+)\]\.(title|description)/);
         if (match) {
           const index = parseInt(match[1]) + 1;
-          const type = match[2] === 'title' ? 'Title' : 'Description';
-          return `Item ${index} ${type}`;
+          const type = match[2] === 'title'
+            ? t('fields.itemTitle')
+            : t('fields.itemDescription');
+          return t('fields.itemWithIndex', {index, type});
         }
       }
       return fieldKey;
@@ -115,19 +121,19 @@ export default function InvoiceSearchAutocomplete({ sx }: InvoiceSearchAutocompl
           </Typography>
           {matchedFieldsText && (
             <Typography level="body-xs" textColor="text.tertiary">
-              Matched in: {matchedFieldsText}
+              {t('matchedIn', {fields: matchedFieldsText})}
             </Typography>
           )}
         </Box>
       </AutocompleteOption>
     );
-  }, []);
+  }, [t]);
 
   return (
     <Autocomplete
       freeSolo
       size="sm"
-      placeholder="Search anything..."
+      placeholder={t('placeholder')}
       loading={loading || isLoading}
       options={options}
       getOptionLabel={getOptionLabel}

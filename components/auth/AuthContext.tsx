@@ -1,3 +1,5 @@
+'use client';
+
 import { PropsWithChildren, useEffect, createContext, useContext } from 'react';
 import { AuthProvider as OidcProvider, useAuth as useOidcAuth } from 'react-oidc-context';
 import { WebStorageStateStore } from 'oidc-client-ts';

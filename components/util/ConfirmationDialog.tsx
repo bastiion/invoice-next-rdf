@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import {
   Button,
@@ -9,6 +11,7 @@ import {
 } from '@mui/material';
 import { Typography } from '@mui/joy';
 import NiceModal, {useModal} from '@ebay/nice-modal-react';
+import {useTranslations} from 'next-intl';
 
 interface ConfirmationDialogProps {
   title: string;
@@ -21,11 +24,14 @@ interface ConfirmationDialogProps {
 export const ConfirmationDialog = NiceModal.create<ConfirmationDialogProps>(({
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   severity = 'danger'
 }) => {
+  const t = useTranslations('ConfirmationDialog');
   const modal = useModal();
+  const resolvedConfirmText = confirmText || t('confirm');
+  const resolvedCancelText = cancelText || t('cancel');
 
   const getColor = () => {
     switch (severity) {
@@ -61,10 +67,10 @@ export const ConfirmationDialog = NiceModal.create<ConfirmationDialogProps>(({
       <DialogActions>
         <Box sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'flex-end' }}>
           <Button variant="outlined" onClick={handleCancel}>
-            {cancelText}
+            {resolvedCancelText}
           </Button>
           <Button color={getColor()} onClick={handleConfirm}>
-            {confirmText}
+            {resolvedConfirmText}
           </Button>
         </Box>
       </DialogActions>

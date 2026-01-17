@@ -1234,14 +1234,6 @@
       };
     }
     {
-      name = "_semantic_ui_react_event_stack___event_stack_3.1.3.tgz";
-      path = fetchurl {
-        name = "_semantic_ui_react_event_stack___event_stack_3.1.3.tgz";
-        url  = "https://registry.yarnpkg.com/@semantic-ui-react/event-stack/-/event-stack-3.1.3.tgz";
-        sha512 = "FdTmJyWvJaYinHrKRsMLDrz4tTMGdFfds299Qory53hBugiDvGC0tEJf+cHsi5igDwWb/CLOgOiChInHwq8URQ==";
-      };
-    }
-    {
       name = "_sindresorhus_is___is_0.14.0.tgz";
       path = fetchurl {
         name = "_sindresorhus_is___is_0.14.0.tgz";
@@ -5207,22 +5199,6 @@
         name = "scuid___scuid_1.1.0.tgz";
         url  = "https://registry.yarnpkg.com/scuid/-/scuid-1.1.0.tgz";
         sha512 = "MuCAyrGZcTLfQoH2XoBlQ8C6bzwN88XT/0slOGz0pn8+gIP85BOAfYa44ZXQUTOwRwPU0QvgU+V+OSajl/59Xg==";
-      };
-    }
-    {
-      name = "semantic_ui_css___semantic_ui_css_2.4.1.tgz";
-      path = fetchurl {
-        name = "semantic_ui_css___semantic_ui_css_2.4.1.tgz";
-        url  = "https://registry.yarnpkg.com/semantic-ui-css/-/semantic-ui-css-2.4.1.tgz";
-        sha512 = "Pkp0p9oWOxlH0kODx7qFpIRYpK1T4WJOO4lNnpNPOoWKCrYsfHqYSKgk5fHfQtnWnsAKy7nLJMW02bgDWWFZFg==";
-      };
-    }
-    {
-      name = "semantic_ui_react___semantic_ui_react_2.1.3.tgz";
-      path = fetchurl {
-        name = "semantic_ui_react___semantic_ui_react_2.1.3.tgz";
-        url  = "https://registry.yarnpkg.com/semantic-ui-react/-/semantic-ui-react-2.1.3.tgz";
-        sha512 = "dd2pqalMk0ycJoHf7hn4mYd0xohg0NMk7ohlpPVOigCfMLrKk2e3NZdRk0yBetvD+qJXPqZ04jA43bDwqOM5OA==";
       };
     }
     {
