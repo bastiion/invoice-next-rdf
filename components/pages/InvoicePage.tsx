@@ -197,7 +197,7 @@ function InvoiceSidePanel({
       {imageSrc && (
         <Box sx={{p: 2}}>
           <AspectRatio ratio={3 / 4} sx={{borderRadius: 'sm', overflow: 'hidden'}}>
-            <Image layout="fill" alt={t('pdfPreviewAlt')} src={imageSrc} />
+            <Image fill alt={t('pdfPreviewAlt')} src={imageSrc} />
           </AspectRatio>
         </Box>
       )}

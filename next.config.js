@@ -9,8 +9,9 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   images: {
-    domains: ['localhost']
-  }
+    // PDF thumbnails are served from the backend /static/ URL; skip the optimizer.
+    unoptimized: true,
+  },
 };
 
 module.exports = withNextIntl(nextConfig);
