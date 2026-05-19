@@ -184,6 +184,11 @@ input InvoiceInput {
     description: String!
     discounts: [DiscountInput!]
     greeting: String!
+    clientRef: String!
+    date: String
+    validUntil: String
+    offerRef: String
+    isOffer: Boolean
     invoiceRef: String!
     place: String!
     sconto: [ScontoInput!]
