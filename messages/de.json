@@ -38,6 +38,8 @@
         "netPricePerItem": "Nettopreis pro Artikel"
       }
     },
+    "loading": "Rechnung wird geladen…",
+    "openDetails": "Details & PDF",
     "pdfPreviewAlt": "Rechnungs-PDF-Vorschau",
     "templateSelection": "Vorlage auswählen",
     "enableZugferd": "ZUGFeRD aktivieren",
@@ -59,7 +61,8 @@
       "viewPdf": "PDF anzeigen",
       "renderPdf": "PDF erzeugen",
       "saveChanges": "Änderungen speichern",
-      "removeInvoice": "Rechnung entfernen"
+      "removeInvoice": "Rechnung entfernen",
+      "closeDetails": "Detailbereich schließen"
     },
     "removeDialog": {
       "title": "Rechnung entfernen",
@@ -81,6 +84,7 @@
   },
   "Sidebar": {
     "productTitle": "Graviola - Business Ontology",
+    "closeNav": "Navigation schließen",
     "appsLabel": "Apps",
     "menu": {
       "dashboard": "Dashboard",
