@@ -28,8 +28,8 @@ export function LoginTrap({ children }: PropsWithChildren) {
   const handleLogin = useCallback(() => {
     // Store current location (pathname + query params) for redirect after login
     const currentPath = searchParams?.toString()
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
+      ? `${pathname ?? '/'}?${searchParams.toString()}`
+      : (pathname ?? '/');
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('preLoginPath', currentPath);
     }
