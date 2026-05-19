@@ -83,6 +83,7 @@
     "productTitle": "Graviola - Business Ontology",
     "appsLabel": "Apps",
     "menu": {
+      "dashboard": "Dashboard",
       "email": "E-Mail",
       "team": "Team",
       "files": "Dateien"
