@@ -335,6 +335,24 @@
       "deleteDialogAccept": "Yes",
       "deleteDialogDecline": "No"
     },
+    "Tax": {
+      "id": {
+        "label": "Tax identifier",
+        "description": "Tax type (e.g. vat)"
+      },
+      "abbreviation": {
+        "label": "Abbreviation",
+        "description": "Tax abbreviation"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Tax name"
+      },
+      "rate": {
+        "label": "Rate",
+        "description": "Tax rate in percent"
+      }
+    },
     "root": {
       "error": {
         "custom": "Invalid value"

@@ -335,6 +335,24 @@
       "deleteDialogAccept": "Ja",
       "deleteDialogDecline": "Nein"
     },
+    "Tax": {
+      "id": {
+        "label": "Steuerkennung",
+        "description": "Steuerart (z. B. vat)"
+      },
+      "abbreviation": {
+        "label": "Abkürzung",
+        "description": "Steuerabkürzung"
+      },
+      "name": {
+        "label": "Name",
+        "description": "Steuername"
+      },
+      "rate": {
+        "label": "Satz",
+        "description": "Steuersatz in Prozent"
+      }
+    },
     "root": {
       "error": {
         "custom": "Ungültiger Wert"
