@@ -46,6 +46,7 @@ query invoices {
             netPricePerItem
             taxes {
                 vat {
+                    id
                     rate
                     abbreviation
                     name

@@ -17,6 +17,7 @@ import {InvoiceNavigationTree} from "../invoice/InvoiceNavigationTree";
 import {AddBoxRounded} from "@mui/icons-material";
 import NiceModal from '@ebay/nice-modal-react';
 import { useAddInvoiceMutation, useInvoiceFilesQuery } from '../generated/graphql';
+import { toInvoiceInput } from '../util/normalize-invoice-taxes';
 import {useRouter} from '../../i18n/navigation';
 import {useTranslations} from 'next-intl';
 
@@ -66,7 +67,7 @@ export default function Navigation() {
     const newInvoice = await NiceModal.show('InvoiceForm', {});
     if (newInvoice) {
       try {
-        const result = await addInvoiceAsync({ invoice: newInvoice });
+        const result = await addInvoiceAsync({ invoice: toInvoiceInput(newInvoice) });
         if (result?.addInvoice?.invoiceRef) {
           // Refetch invoiceFiles to get the newly created invoice file
           const { data: updatedData } = await refetchInvoiceFiles();

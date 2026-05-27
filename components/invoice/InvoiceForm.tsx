@@ -9,6 +9,7 @@ import {ThemeProvider} from "@mui/system";
 import {createTheme} from "@mui/material/styles";
 import {InvoiceInput} from "../generated/graphql";
 import {invoiceUISchema} from "./invoiceUISchema";
+import {normalizeInvoiceTaxes, toInvoiceInput} from "../util/normalize-invoice-taxes";
 import {Close} from "@mui/icons-material";
 import NiceModal, {useModal} from "@ebay/nice-modal-react";
 
@@ -63,7 +64,9 @@ const clearNullOrEmpty = (input: any): any => {
 const InvoiceForm = NiceModal.create<InvoiceFormProps>(({ initialInvoice }) => {
   const modal = useModal();
   const t = useTranslations('JsonForms');
-  const [data, setData] = useState<any>(initialInvoice || {});
+  const [data, setData] = useState<any>(
+    initialInvoice ? normalizeInvoiceTaxes(initialInvoice) : {}
+  );
   const [locale, setLocale] = useState<'de' | 'en'>('de');
   const translation = useMemo(() => createTranslator(locale, t), [locale, t]);
 
@@ -72,8 +75,14 @@ const InvoiceForm = NiceModal.create<InvoiceFormProps>(({ initialInvoice }) => {
     modal.hide();
   }, [modal]);
 
+  useEffect(() => {
+    if (initialInvoice) {
+      setData(normalizeInvoiceTaxes(initialInvoice));
+    }
+  }, [initialInvoice]);
+
   const handleSave = useCallback(() => {
-    modal.resolve(data as InvoiceInput);
+    modal.resolve(toInvoiceInput(data));
     modal.hide();
   }, [data, modal]);
 

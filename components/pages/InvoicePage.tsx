@@ -43,6 +43,7 @@ import Layout from '../layout/Layout';
 import {CalculatedInvoice} from '../util/types/invoice';
 import calculateInvoice from '../util/calculate-invoice';
 import type {Invoice as InvoiceType} from '../util/types/invoice';
+import {toInvoiceInput} from '../util/normalize-invoice-taxes';
 import {TemplateSelect} from '../invoice/TemplateSelect';
 import config from '../config';
 import {useRouter} from '../../i18n/navigation';
@@ -407,7 +408,7 @@ export default function InvoicePage() {
 
   const handleSave = useCallback(async () => {
     if (!editableInvoice) return;
-    await saveAsync({invoice: editableInvoice as any});
+    await saveAsync({invoice: toInvoiceInput(editableInvoice)});
     setHasChanged(false);
   }, [saveAsync, editableInvoice]);
 
@@ -447,7 +448,7 @@ export default function InvoicePage() {
     const updatedInvoice = await NiceModal.show('InvoiceForm', {initialInvoice: invoice});
     if (updatedInvoice) {
       try {
-        await updateAsync({invoice: updatedInvoice as any, invoiceFileName: fileName});
+        await updateAsync({invoice: toInvoiceInput(updatedInvoice), invoiceFileName: fileName});
       } catch (error) {
         console.error('Error updating invoice:', error);
       }
@@ -466,7 +467,7 @@ export default function InvoicePage() {
       };
 
       try {
-        const result = await saveAsync({invoice: newInvoice as any});
+        const result = await saveAsync({invoice: toInvoiceInput(newInvoice)});
         if (result?.addInvoice?.invoiceRef) {
           const {data: updatedData} = await refetchInvoiceFiles();
           const createdInvoiceRef = result.addInvoice.invoiceRef;

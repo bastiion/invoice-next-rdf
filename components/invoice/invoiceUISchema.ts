@@ -4,6 +4,27 @@ import {jsonSchema2UISchemaElements, overrideScopes} from '../util/schema'
 type ScopeFn = (s: string) => string
 import {JsonSchema} from "@jsonforms/core";
 
+const vatTaxDetail: UISchemaElement = {
+  type: 'VerticalLayout',
+  elements: [
+    {type: 'Control', scope: '#/properties/id'},
+    {type: 'Control', scope: '#/properties/abbreviation'},
+    {type: 'Control', scope: '#/properties/name'},
+    {type: 'Control', scope: '#/properties/rate'},
+  ],
+};
+
+const tradeItemTaxesDetail: UISchemaElement = {
+  type: 'VerticalLayout',
+  elements: [
+    {
+      type: 'Control',
+      scope: '#/properties/vat',
+      options: {detail: vatTaxDetail},
+    },
+  ],
+};
+
 export type UISchemaOverrides = (scopeFn: ScopeFn, schema: JsonSchema) => (UISchemaElement & Scopable)[]
 export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
   { type: 'Control',
@@ -13,7 +34,13 @@ export const applicationUIOverrides: UISchemaOverrides = (scopeFn, schema) => [
       showSortButtons: true,
       detail: {
         type: 'VerticalLayout',
-        elements: overrideScopes([], jsonSchema2UISchemaElements((schema as any)?.definitions?.TradeItem))
+        elements: overrideScopes([
+          {
+            type: 'Control',
+            scope: '#/properties/taxes',
+            options: {detail: tradeItemTaxesDetail},
+          },
+        ], jsonSchema2UISchemaElements((schema as any)?.definitions?.TradeItem))
       }
     }
   },{

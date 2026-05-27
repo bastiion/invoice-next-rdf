@@ -50,6 +50,7 @@ query invoiceFile($fileName: String!) {
                 netPricePerItem
                 taxes {
                     vat {
+                        id
                         rate
                         abbreviation
                         name
