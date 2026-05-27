@@ -1,34 +1,154 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# invoice-next-rdf
+
+Web frontend for the file-based invoice management system. It provides a form-driven UI for creating, editing, and rendering invoices and offers — backed by the [`invoice-next-server`](https://git.gra.one/business/invoice-server) GraphQL API. No database; all data lives as YAML files on the server.
+
+---
+
+## Concept
+
+- **No database, no backend state.** The frontend talks to a GraphQL server that reads and writes plain YAML files. The "database" is the filesystem.
+- **Form-driven editing via JSON Forms.** Invoice structure is defined by a JSON Schema; the UI is rendered automatically by `@jsonforms` with Material UI renderers. Schema changes propagate to the form with no manual UI work.
+- **GraphQL + code generation.** All API calls are typed. GraphQL queries/mutations are co-located with components; TypeScript types and React Query hooks are generated from them via `graphql-codegen`.
+- **Internationalised (i18n).** UI strings are managed with `next-intl` (German and English included).
+- **Optional authentication.** Keycloak OIDC integration via `react-oidc-context`. Can be disabled entirely for local or Electron use.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| UI components | MUI Joy + MUI Material v7 |
+| Form engine | JSON Forms (`@jsonforms/react`) |
+| Data grid | Inovua ReactDataGrid |
+| GraphQL client | React Query + generated typed hooks |
+| Type generation | `graphql-codegen` |
+| i18n | `next-intl` |
+| Authentication | `react-oidc-context` / Keycloak OIDC |
+| Date handling | Day.js / Moment |
+| Full-text search | FlexSearch (client-side index) |
+
+---
+
+## Directory Layout
+
+```
+app/
+  [locale]/           # Locale-scoped Next.js routes
+    invoice/          # Single-invoice view
+    invoiceCreate/    # New invoice form
+    invoices/         # Invoice list
+
+components/
+  auth/               # OIDC context, login gate, profile dropdown
+  datagrid/           # Declarative data-grid wrapper
+  invoice/            # Invoice form, list, navigation tree, GraphQL queries
+    invoice.json            # JSON Schema defining the Invoice data model
+    invoiceUISchema.ts      # JSON Forms UI layout overrides
+    invoiceRefSchemas.ts    # Referenced sub-schemas
+    *.graphql               # Co-located GraphQL operations
+  layout/             # App shell (navigation, sidebar)
+  pages/              # Page-level components (InvoicePage, InvoicesPage, …)
+  search/             # Client-side full-text invoice search
+  theme/              # MUI theme
+  util/               # Shared helpers (calculate-invoice, normalize-invoice-taxes, …)
+  generated/          # Auto-generated GraphQL types and React Query hooks
+    graphql.tsx
+    fetcher.ts
+
+messages/
+  de.json             # German UI strings
+  en.json             # English UI strings
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js ≥ 18
+- A running `invoice-next-server` instance (see [its README](https://git.gra.one/business/invoice-server))
+
+### Install & run
 
 ```bash
-npm run dev
-# or
-yarn dev
+yarn install
+yarn dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Create `.env.local`:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```env
+# GraphQL endpoint
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:3001/graphql
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+# Static file base URL (rendered PDFs)
+NEXT_PUBLIC_STATIC_URL=http://localhost:3001/static
 
-## Learn More
+# Authentication (set to false to disable)
+NEXT_PUBLIC_AUTH_ENABLED=true
+NEXT_PUBLIC_AUTH_AUTHORITY=http://localhost:8080/realms/invoice-management
+NEXT_PUBLIC_AUTH_CLIENT_ID=invoice-frontend
+NEXT_PUBLIC_AUTH_REDIRECT_PATH=/
+```
 
-To learn more about Next.js, take a look at the following resources:
+Set `NEXT_PUBLIC_AUTH_ENABLED=false` for local development without Keycloak.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## GraphQL Code Generation
 
-## Deploy on Vercel
+Typed React Query hooks are generated from the `.graphql` files alongside each component:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+yarn codegen
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This reads `codegen.yml`, introspects the server schema, and writes output to `components/generated/graphql.tsx`. Re-run whenever you add or change GraphQL operations or the server schema changes.
+
+---
+
+## Invoice Form
+
+The invoice editing form is driven entirely by the JSON Schema at `components/invoice/invoice.json`. It covers:
+
+- Seller and buyer details (name, address, bank, tax ID)
+- Line items (`tradeItems`) with per-item VAT configuration
+- Discounts (percentage-based)
+- Sconto (early-payment discount terms)
+- Offer-specific fields (`offerRef`, `validUntil`)
+
+The UI layout is defined in `components/invoice/invoiceUISchema.ts` using JSON Forms' UI schema format, with custom renderers for trade-item tables and optional-object controls.
+
+Amounts are **never calculated in the frontend** — the server performs all calculations on save/render and returns a `CalculatedInvoice` with pre-formatted strings for display and ZUGFeRD export.
+
+---
+
+## Authentication
+
+Authentication is handled by `react-oidc-context` wrapping the app in an OIDC provider. When enabled:
+
+- Unauthenticated users are redirected to Keycloak login.
+- The access token is forwarded in the `Authorization` header of every GraphQL request.
+- A profile dropdown in the navigation allows logout.
+
+See the server's [`docker/README.md`](https://git.gra.one/business/invoice-server) for Keycloak setup.
+
+---
+
+## Build
+
+```bash
+yarn build
+yarn start
+```
+
+---
+
+## License
+
+GPLv3
